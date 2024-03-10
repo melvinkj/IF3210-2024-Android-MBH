@@ -1,5 +1,6 @@
 package com.example.transactionmanagementsystem
 
+import android.content.Intent
 import android.widget.Toast
 import com.example.transactionmanagementsystem.api.ApiInterface
 import com.example.transactionmanagementsystem.api.RetrofitInstance
@@ -52,6 +53,11 @@ class LoginActivity : AppCompatActivity() {
                     val editor = token.edit()
                     editor.putString("token", responseBody)
                     editor.apply()
+
+                    // Redirect to settings screen
+                    val intent = Intent(this@LoginActivity, SettingsActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 } else {
                     Toast.makeText(this@LoginActivity, "Login failed!", Toast.LENGTH_SHORT).show()
                 }
