@@ -44,7 +44,14 @@ class LoginActivity : AppCompatActivity() {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.code() == 200) { 
                     Toast.makeText(this@LoginActivity, "Login success!", Toast.LENGTH_SHORT).show()
-                    println("Response Body: " + response.body()?.string())
+                    val responseBody = response.body()?.string()
+                    println("Response Body: " + responseBody)
+                    
+                    // Save token after successful login
+                    val token = getSharedPreferences("UserToken", MODE_PRIVATE)
+                    val editor = token.edit()
+                    editor.putString("token", responseBody)
+                    editor.apply()
                 } else {
                     Toast.makeText(this@LoginActivity, "Login failed!", Toast.LENGTH_SHORT).show()
                 }
