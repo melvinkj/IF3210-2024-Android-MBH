@@ -24,6 +24,10 @@ class SettingsActivity : AppCompatActivity() {
         editor.remove("token")
         editor.apply()
 
+        // Stop the TokenExpiryService
+        val serviceIntent = Intent(this, TokenExpiryService::class.java)
+        stopService(serviceIntent)
+
         // Redirect to the login page
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
