@@ -4,9 +4,11 @@ import com.example.transactionmanagementsystem.models.LoginRequest
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 
@@ -14,6 +16,9 @@ interface ApiInterface {
     @Headers("Content-Type:application/json")
     @POST("api/auth/login")
     fun signin(@Body info: LoginRequest): retrofit2.Call<ResponseBody>
+
+    @POST("api/auth/token")
+    fun checkToken(@Header("Authorization") token: String): Call<ResponseBody>
 }
 
 class RetrofitInstance {
