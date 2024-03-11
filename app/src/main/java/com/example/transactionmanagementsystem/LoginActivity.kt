@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,9 +50,12 @@ class LoginActivity : AppCompatActivity() {
                     println("Response Body: " + responseBody)
                     
                     // Save token after successful login
+                    val jsonObject = JSONObject(responseBody)
+                    val tokenString = jsonObject.getString("token")
+
                     val token = getSharedPreferences("UserToken", MODE_PRIVATE)
                     val editor = token.edit()
-                    editor.putString("token", responseBody)
+                    editor.putString("token", tokenString)
                     editor.apply()
 
                     // Redirect to settings screen
