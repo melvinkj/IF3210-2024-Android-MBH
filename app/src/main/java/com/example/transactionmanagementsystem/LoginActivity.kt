@@ -58,6 +58,10 @@ class LoginActivity : AppCompatActivity() {
                     editor.putString("token", tokenString)
                     editor.apply()
 
+                    // Start the TokenExpiryService
+                    val serviceIntent = Intent(this@LoginActivity, TokenExpiryService::class.java)
+                    startService(serviceIntent)
+
                     // Redirect to settings screen
                     val intent = Intent(this@LoginActivity, SettingsActivity::class.java)
                     startActivity(intent)
