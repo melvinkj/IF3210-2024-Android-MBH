@@ -15,7 +15,7 @@ import android.widget.Button
 import android.widget.EditText
 import org.json.JSONObject
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
