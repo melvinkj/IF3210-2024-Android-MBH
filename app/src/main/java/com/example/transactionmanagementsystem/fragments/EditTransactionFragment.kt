@@ -1,7 +1,17 @@
 package com.example.transactionmanagementsystem.fragments
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.location.LocationManager
 import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
+import android.location.Location
 import android.os.Bundle
+import android.provider.Settings
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -10,6 +20,10 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.getSystemService
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.FragmentTransaction
@@ -21,17 +35,15 @@ import com.example.transactionmanagementsystem.R
 import com.example.transactionmanagementsystem.databinding.FragmentEditTransactionBinding
 import com.example.transactionmanagementsystem.models.Transaction
 import com.example.transactionmanagementsystem.viewmodel.TransactionViewModel
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import java.util.Locale
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [EditTransactionFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), MenuProvider {
 
     private var editTransactionBinding: FragmentEditTransactionBinding? = null
@@ -39,6 +51,8 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
 
     private lateinit var transactionViewModel: TransactionViewModel
     private lateinit var  currentTransaction: Transaction
+    private lateinit var mFusedLocationClient: FusedLocationProviderClient
+    private val permissionId = 2
 
     private val args: EditTransactionFragmentArgs by navArgs()
     override fun onCreateView(
@@ -50,6 +64,7 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         return binding.root
     }
 
+    @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val menuHost: MenuHost = requireActivity()
@@ -57,7 +72,6 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         transactionViewModel = (activity as MainActivity).transactionViewModel
 
         currentTransaction = args.transaction!!
-
 
         binding.editTransactionTitle.setText(currentTransaction.title)
         binding.editTransactionCategory.setText(currentTransaction.category)
@@ -96,8 +110,82 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
             }
         }
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-
+        binding.buttonChangeLocation.setOnClickListener {
+            getLocation()
+        }
+    }
+    @SuppressLint("MissingPermission", "SetTextI18n")
+    private fun getLocation() {
+        if (checkPermissions()) {
+            if (isLocationEnabled()) {
+                mFusedLocationClient.lastLocation.addOnCompleteListener(requireActivity()) { task ->
+                    val location: Location? = task.result
+                    if (location != null) {
+                        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+                        val list: MutableList<Address>? =
+                            geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                        binding.apply {
+//                            tvLocality.text = "Locality\n${list[0].locality}"
+//                            tvAddress.text = "Address\n${list[0].getAddressLine(0)}"
+                            editTransactionLatitude.text = list?.get(0)?.latitude.toString()
+                            editTransactionLongitude.text = list?.get(0)?.longitude.toString()
+                            editTransactionAddress.text = list?.get(0)?.getAddressLine(0).toString()
+                        }
+                    }
+                }
+            } else {
+                Toast.makeText(requireContext(), "Please turn on location", Toast.LENGTH_LONG).show()
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(intent)
+            }
+        } else {
+            requestPermissions()
+        }
+    }
+    private fun isLocationEnabled(): Boolean {
+        val locationManager: LocationManager =
+            requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
+        )
+    }
+    private fun checkPermissions(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
+    }
+    private fun requestPermissions() {
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            permissionId
+        )
+    }
+    @SuppressLint("MissingSuperCall")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == permissionId) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                getLocation()
+            }
+        }
     }
 
     private fun deleteTransaction() {
