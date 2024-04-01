@@ -1,6 +1,10 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id ("kotlin-kapt")
+    id ("kotlin-parcelize")
+    id("com.google.devtools.ksp")
+    id ("androidx.navigation.safeargs")
 }
 
 android {
@@ -35,6 +39,8 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
+        dataBinding = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -65,6 +71,31 @@ dependencies {
     implementation("io.reactivex.rxjava2:rxjava:2.1.13")
     implementation("io.reactivex.rxjava2:rxandroid:2.0.2")
     implementation("com.google.android.gms:play-services-auth:17.0.0")
+    implementation("androidx.cardview:cardview:1.0.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // ROOM
+    val roomVersion = "2.6.1"
+    implementation ("androidx.room:room-runtime:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+    implementation ("androidx.room:room-ktx:$roomVersion")
+    // Navigation
+    val navVersion = "2.7.7"
+    implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
+    implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
+    // Life Cycle Arch
+    val lifecycleVersion = "2.7.0"
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    // Annotation processor
+    ksp("androidx.lifecycle:lifecycle-compiler:$lifecycleVersion")
+
+
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
