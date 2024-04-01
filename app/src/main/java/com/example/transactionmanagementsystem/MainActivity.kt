@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         setContentView(binding.root)
+        supportActionBar?.hide()
 //        bottomNavigationView = findViewById(R.id.navbar)
 
         replaceFragment(TransactionFragment())

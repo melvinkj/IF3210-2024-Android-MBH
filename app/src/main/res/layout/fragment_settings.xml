@@ -5,11 +5,32 @@
     android:layout_height="match_parent"
     tools:context=".SettingsFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Header aligned to the top -->
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Settings Fragment"
-        android:textSize="25dp"
-        android:layout_centerInParent="true"/>
+        android:layout_alignParentTop="true"
+        android:background="#000000"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Settings"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp" />
+    </RelativeLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:id="@+id/sendBtn"
+        android:text="SEND EMAIL"
+        android:textSize="26sp"
+        android:layout_margin="26dp"
+        android:layout_centerInParent="true"
+        />
 
 </RelativeLayout>

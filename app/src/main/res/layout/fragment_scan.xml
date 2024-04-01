@@ -5,11 +5,43 @@
     android:layout_height="match_parent"
     tools:context=".ScanFragment">
 
-    <TextView
+    <!-- Header aligned to the top -->
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#000000"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Scan"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp" />
+    </RelativeLayout>
+
+
+<!--    <TextView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Scan Fragment"-->
+<!--        android:textSize="25dp"-->
+<!--        android:layout_centerInParent="true"/>-->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/viewFinder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <Button
+        android:id="@+id/captureButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Scan Fragment"
-        android:textSize="25dp"
-        android:layout_centerInParent="true"/>
+        android:text="Capture Photo"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp" />
+
 
 </RelativeLayout>

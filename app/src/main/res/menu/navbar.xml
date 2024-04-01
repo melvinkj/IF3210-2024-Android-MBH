@@ -3,15 +3,15 @@
 
     <item android:id="@+id/transaction"
         android:title="Transaction"
-        android:icon="@drawable/baseline_home_24" />
+        android:icon="@drawable/baseline_featured_play_list_24" />
 
     <item android:id="@+id/scan"
         android:title="Scan"
-        android:icon="@drawable/baseline_format_list_bulleted_24" />
+        android:icon="@drawable/baseline_document_scanner_24" />
 
     <item android:id="@+id/graph"
         android:title="Graph"
-        android:icon="@drawable/baseline_settings_24"/>
+        android:icon="@drawable/baseline_pie_chart_24"/>
 
     <item android:id="@+id/settings"
         android:title="Settings"
