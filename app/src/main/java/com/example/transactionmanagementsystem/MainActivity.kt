@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.example.transactionmanagementsystem.databinding.ActivityMainBinding
-import com.example.transactionmanagementsystem.ui.theme.TransactionManagementSystemTheme
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationBarView
 
@@ -35,14 +34,8 @@ class MainActivity : AppCompatActivity() {
             binding.navbar.setBackgroundColor(0xFFFFFFF.toInt())
         }
 
-        setContent {
-            TransactionManagementSystemTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Greeting("Android")
-                }
-            }
-        }
+        setContent {}
+
         setContentView(binding.root)
         supportActionBar?.hide()
 //        bottomNavigationView = findViewById(R.id.navbar)
@@ -80,10 +73,10 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TransactionManagementSystemTheme {
-        Greeting("Android")
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    TransactionManagementSystemTheme {
+//        Greeting("Android")
+//    }
+//}
