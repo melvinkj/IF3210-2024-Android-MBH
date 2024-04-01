@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/transactionListFragment">
+
+    <fragment
+        android:id="@+id/transactionListFragment"
+        android:name="com.example.transactionmanagementsystem.fragments.TransactionListFragment"
+        android:label="TransactionListFragment" >
+        <action
+            android:id="@+id/action_transactionListFragment_to_addTransactionFragment"
+            app:destination="@id/addTransactionFragment" />
+        <action
+            android:id="@+id/action_transactionListFragment_to_editTransactionFragment"
+            app:destination="@id/editTransactionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addTransactionFragment"
+        android:name="com.example.transactionmanagementsystem.fragments.AddTransactionFragment"
+        android:label="AddTransactionFragment" >
+        <action
+            android:id="@+id/action_addTransactionFragment_to_transactionListFragment"
+            app:destination="@id/transactionListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editTransactionFragment"
+        android:name="com.example.transactionmanagementsystem.fragments.EditTransactionFragment"
+        android:label="EditTransactionFragment" >
+        <action
+            android:id="@+id/action_editTransactionFragment_to_transactionListFragment"
+            app:destination="@id/transactionListFragment" />
+
+        <argument
+            android:name="transaction"
+            app:argType="com.example.transactionmanagementsystem.models.Transaction"
+            app:nullable="true"/>
+
+    </fragment>
+</navigation>

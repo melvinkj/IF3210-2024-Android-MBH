@@ -5,10 +5,6 @@ plugins {
     id ("kotlin-parcelize")
     id("com.google.devtools.ksp")
     id ("androidx.navigation.safeargs")
-    id ("kotlin-kapt")
-    id ("kotlin-parcelize")
-    id("com.google.devtools.ksp")
-    id ("androidx.navigation.safeargs")
 }
 
 android {
@@ -45,7 +41,7 @@ android {
         viewBinding = true
         dataBinding = true
     }
-    compositions {
+    composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
     packaging {

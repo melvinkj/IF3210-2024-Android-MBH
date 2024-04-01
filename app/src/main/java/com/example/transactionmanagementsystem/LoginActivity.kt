@@ -63,8 +63,13 @@ class LoginActivity : BaseActivity() {
                     startService(serviceIntent)
 
                     // Redirect to settings screen
-                    val intent = Intent(this@LoginActivity, SettingsActivity::class.java)
-                    startActivity(intent)
+//                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+//                    startActivity(intent)
+
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    applicationContext.startActivity(intent)
+
                     finish()
                 } else {
                     Toast.makeText(this@LoginActivity, "Login failed!", Toast.LENGTH_SHORT).show()
