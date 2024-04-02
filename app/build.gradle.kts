@@ -70,6 +70,9 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    // For making xlsx or xls file
+    implementation("org.apache.poi:poi:5.2.0")
+    implementation("org.apache.poi:poi-ooxml:5.2.0")
 
     // ROOM
     val roomVersion = "2.6.1"
