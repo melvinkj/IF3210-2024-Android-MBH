@@ -23,14 +23,35 @@
             android:textSize="25sp" />
     </RelativeLayout>
 
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:id="@+id/sendBtn"
-        android:text="SEND EMAIL"
-        android:textSize="26sp"
-        android:layout_margin="26dp"
-        android:layout_centerInParent="true"
-        />
+        android:layout_height="match_parent"
+        android:layout_below="@id/header"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/save1Btn"
+            android:layout_width="350dp"
+            android:layout_height="50sp"
+            android:text="Save As .xlsx"
+            android:textSize="26sp" />
+
+        <Button
+            android:id="@+id/save2Btn"
+            android:layout_width="350dp"
+            android:layout_height="50sp"
+            android:text="Save As .xls"
+            android:textSize="26sp"
+            android:layout_marginTop="10dp" />
+
+        <Button
+            android:id="@+id/sendBtn"
+            android:layout_width="350dp"
+            android:layout_height="50sp"
+            android:text="Send Email"
+            android:textSize="26sp"
+            android:layout_marginTop="10dp" />
+    </LinearLayout>
 
 </RelativeLayout>
