@@ -1,5 +1,6 @@
 package com.example.transactionmanagementsystem
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -11,8 +12,15 @@ import android.widget.Button
 import android.widget.Toast
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.transactionmanagementsystem.databinding.ActivityMainBinding
+import com.example.transactionmanagementsystem.models.Transaction
+import kotlinx.coroutines.launch
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
+// For dummy transaction
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -39,15 +47,93 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Find the button by its ID
+        val saveXlsxButton = view.findViewById<Button>(R.id.save1Btn)
+        val saveXlsButton = view.findViewById<Button>(R.id.save2Btn)
         val sendButton = view.findViewById<Button>(R.id.sendBtn)
 
         // Set OnClickListener on the button
+
+        // Save as XLSX file
+        saveXlsxButton.setOnClickListener {
+            val format = ".xlsx"
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                putExtra(Intent.EXTRA_TITLE, "transactions$format")
+            }
+            startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
+        }
+
+        // Save as XLS file
+        saveXlsButton.setOnClickListener {
+            val format = ".xls"
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "application/vnd.ms-excel"
+                putExtra(Intent.EXTRA_TITLE, "transactions$format")
+            }
+            startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
+        }
+
         sendButton.setOnClickListener {
             // Perform your task here when the button is clicked
             sendEmail()
         }
     }
 
+    companion object {
+        const val CREATE_FILE_REQUEST_CODE = 1
+    }
+
+    // Dummy transactions for saving file
+    fun getDummyTransactions(): List<Transaction> {
+        // Replace with your own dummy data
+        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val date = format.parse("2023-08-01")
+
+        return listOf(
+            Transaction(1, "Banana", "Fruit", 10000.0, date, "", 20.0, 10.0),
+            Transaction(2, "Carrot", "Veggies", 5000.0, date, "", 20.0, 10.0)
+        )
+    }
+
+    // Save file as XLSX or XLS
+    private fun saveFile(transactions: List<Transaction>, uri: Uri) {
+        val workbook = XSSFWorkbook()
+        val sheet = workbook.createSheet("Transactions")
+
+        // Create a CellStyle object for date format
+        val dateCellStyle = workbook.createCellStyle().apply {
+            dataFormat = workbook.creationHelper.createDataFormat().getFormat("yyyy-MM-dd")
+        }
+
+        // Create header row
+        val header = sheet.createRow(0)
+        header.createCell(0).setCellValue("Date")
+        header.createCell(1).setCellValue("Category")
+        header.createCell(2).setCellValue("Amount")
+
+        // Add transactions
+        transactions.forEachIndexed { index, transaction ->
+            val row = sheet.createRow(index + 1)
+
+            // Create a cell for date and apply the date format
+            val dateCell = row.createCell(0)
+            dateCell.setCellValue(transaction.date)
+            dateCell.cellStyle = dateCellStyle
+
+            row.createCell(1).setCellValue(transaction.category)
+            row.createCell(2).setCellValue(transaction.amount)
+        }
+
+        // Write to file
+        requireContext().contentResolver.openOutputStream(uri)?.use { outputStream ->
+            workbook.write(outputStream)
+        }
+        workbook.close()
+    }
+
+    // Send email function
     protected fun sendEmail() {
         val address = "13521052@std.stei.itb.ac.id"
         val subject = "Test Subject"
@@ -66,6 +152,18 @@ class SettingsFragment : Fragment() {
         }else{
             println(intent.resolveActivity(requireActivity().packageManager) != null)
             Toast.makeText( requireContext(),"Required App is not installed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // For triggering the saveFile function
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            data?.data?.also { uri ->
+                lifecycleScope.launch {
+                    saveFile(getDummyTransactions(), uri)
+                }
+            }
         }
     }
 
