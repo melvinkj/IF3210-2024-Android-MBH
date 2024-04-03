@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import androidx.fragment.app.Fragment
@@ -20,13 +21,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.getSystemService
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
@@ -35,13 +32,9 @@ import com.example.transactionmanagementsystem.R
 import com.example.transactionmanagementsystem.databinding.FragmentEditTransactionBinding
 import com.example.transactionmanagementsystem.models.Transaction
 import com.example.transactionmanagementsystem.viewmodel.TransactionViewModel
-import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
+import java.text.SimpleDateFormat
 import java.util.Locale
 
 class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), MenuProvider {
@@ -72,11 +65,12 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         transactionViewModel = (activity as MainActivity).transactionViewModel
 
         currentTransaction = args.transaction!!
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
 
         binding.editTransactionTitle.setText(currentTransaction.title)
         binding.editTransactionCategory.setText(currentTransaction.category)
         binding.editTransactionAmount.setText(currentTransaction.amount.toString())
-        binding.editTransactionDate.setText(currentTransaction.date.toString())
+        binding.editTransactionDate.setText(dateFormat.format(currentTransaction.date))
         binding.editTransactionAddress.setText(currentTransaction.address)
         binding.editTransactionLatitude.setText(currentTransaction.latitude.toString())
         binding.editTransactionLongitude.setText(currentTransaction.longitude.toString())
@@ -106,7 +100,7 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
                 transactionViewModel.editTransaction(transaction)
 
                 Toast.makeText(context, "Update saved", Toast.LENGTH_SHORT).show()
-                view.findNavController().popBackStack(R.id.transactionListFragment, false)
+                view.findNavController().popBackStack(R.id.navbarFragment, false)
             }
         }
 
@@ -166,6 +160,24 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         return false
     }
     private fun requestPermissions() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) ||
+            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+        ) {
+            // Show a rationale for why the permissions are needed
+            Toast.makeText(
+                requireContext(),
+                "Location permission is required for this feature",
+                Toast.LENGTH_LONG
+            ).show()
+        } else {
+            // Direct the user to app settings to enable permissions manually
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", requireActivity().packageName, null)
+            intent.data = uri
+            startActivity(intent)
+        }
+
+        // Request permissions regardless
         ActivityCompat.requestPermissions(
             requireActivity(),
             arrayOf(
@@ -175,6 +187,7 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
             permissionId
         )
     }
+
     @SuppressLint("MissingSuperCall")
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -195,7 +208,7 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
             setPositiveButton("Delete"){_,_ ->
                 transactionViewModel.deleteTransaction(currentTransaction)
                 Toast.makeText(context, "Transaction Deleted", Toast.LENGTH_SHORT).show()
-                view?.findNavController()?.popBackStack(R.id.transactionListFragment, false)
+                view?.findNavController()?.popBackStack(R.id.navbarFragment, false)
             }
             setNegativeButton("Cancel", null)
         }.create().show()

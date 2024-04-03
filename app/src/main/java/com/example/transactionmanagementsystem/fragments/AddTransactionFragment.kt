@@ -68,28 +68,15 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
         addTransactionView = view
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        binding.buttonSave.setOnClickListener {
+            saveTransaction()
+        }
     }
 
-    private fun saveTransaction(view: View, transactionLocation: List<Any>){
-        val transactionTitle = binding.addTransactionTitle.text.toString().trim()
-        val transactionCategory = binding.addTransactionCategory.text.toString().trim()
-        val transactionAmountStr = binding.addTransactionAmount.text.toString().trim()
-        val transactionDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant())
-
-        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 100)
-        }
-
-        val address = transactionLocation.get(0).toString()
-        val latitude = transactionLocation.get(1).toString().toDouble()
-        val longitude = transactionLocation.get(2).toString().toDouble()
-
-
+    private fun areAllFieldsFilled(transactionTitle: String, transactionCategory: String, transactionAmountStr: String): Boolean {
         if (transactionTitle.isEmpty()) {
             Toast.makeText(addTransactionView.context, "Title must be filled", Toast.LENGTH_SHORT).show()
-            return
-        } else{}
+        }
         if (transactionCategory.isEmpty()) {
             Toast.makeText(addTransactionView.context, "Category must be filled", Toast.LENGTH_SHORT).show()
         }
@@ -97,14 +84,45 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
             transactionAmountStr.toDouble()
         } catch (e: NumberFormatException) {
             Toast.makeText(addTransactionView.context, "Amount must be filled with a number", Toast.LENGTH_SHORT).show()
-            return
+            return false
         }
         if (transactionTitle.isNotEmpty() && transactionCategory.isNotEmpty() && transactionAmountStr.isNotEmpty()) {
-            val transaction = Transaction(0, transactionTitle, transactionCategory, transactionAmount, transactionDate, address, latitude, longitude)
-            transactionViewModel.addTransaction(transaction)
+            return true
+        } else {
+            return false
+        }
+    }
 
-            Toast.makeText(addTransactionView.context, "Transaction saved", Toast.LENGTH_SHORT).show()
-            view.findNavController().popBackStack(R.id.transactionListFragment, false)
+    private fun saveTransaction() {
+        getLocation { success, address, latitude, longitude ->
+            if (success) {
+                // Location fetched successfully, proceed with saving the transaction
+                val transactionTitle = binding.addTransactionTitle.text.toString().trim()
+                val transactionCategory = binding.addTransactionCategory.text.toString().trim()
+                val transactionAmountStr = binding.addTransactionAmount.text.toString().trim()
+                val transactionDate = Date()
+
+                if (areAllFieldsFilled(transactionTitle, transactionCategory, transactionAmountStr)) {
+                    val transaction = Transaction(
+                        0,
+                        transactionTitle,
+                        transactionCategory,
+                        transactionAmountStr.toDouble(),
+                        transactionDate,
+                        address,
+                        latitude,
+                        longitude
+                    )
+                    transactionViewModel.addTransaction(transaction)
+
+                    Toast.makeText(addTransactionView.context, "Transaction saved", Toast.LENGTH_SHORT)
+                        .show()
+                    addTransactionView.findNavController().popBackStack(R.id.navbarFragment, false)
+                }
+            } else {
+                // Failed to fetch location, handle accordingly
+                Toast.makeText(requireContext(), "Failed to fetch location", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -116,7 +134,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when(menuItem.itemId){
             R.id.saveMenu -> {
-                getLocation()
+                saveTransaction()
                 true
             }
             else -> false
@@ -127,85 +145,54 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
         super.onDestroy()
         addTransactionBinding = null
     }
-//
-//    fun getLocation() {
-//        val location = fusedLocationProviderClient.lastLocation
-//        var latitude: Double = -6.8915
-//        var longitude: Double = 107.6107
-//        var address: String = "ITB"
-//
-//        if (ActivityCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-//            != PackageManager.PERMISSION_GRANTED &&
-//            ActivityCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
-//            != PackageManager.PERMISSION_GRANTED) {
-//                ActivityCompat.requestPermissions(requireActivity(), arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 100)
-////            saveTransaction(addTransactionView, listOf(address, latitude, longitude))
-////            return
-//        }
-//
-//
-//        location.addOnSuccessListener {
-//            if (it!=null) {
-//                latitude = it.latitude
-//                longitude = it.longitude
-//                val geocoder = Geocoder(requireContext(), Locale.getDefault())
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//                    geocoder.getFromLocation(latitude, longitude, 1) { list ->
-//                        if (list.size != 0) {
-//                            address = list[0].getAddressLine(0)
-//                        }
-//                    }
-//
-//                } else {
-//                    try {
-//                        val list = geocoder.getFromLocation(latitude, longitude, 1)
-//                        if (list != null && list.size != 0) {
-//                            address = list[0].getAddressLine(0)
-//                        }
-//                    } catch (e: IOException) {
-//                        e.printStackTrace()
-//                    }
-//                }
-//                saveTransaction(addTransactionView, listOf(address, latitude, longitude))
-//            } else {
-//                address = "hello"
-//                saveTransaction(addTransactionView, listOf(address, latitude, longitude))
-//            }
-//        }
-//    }
     @SuppressLint("MissingPermission", "SetTextI18n")
-    private fun getLocation() {
+    private fun getLocation(callback: (Boolean, String, Double, Double) -> Unit) {
+        var address: String = "ITB"
         var latitude: Double = -6.8915
         var longitude: Double = 107.6107
-        var address: String = "ITB"
 
-        if (checkPermissions()) {
-            if (isLocationEnabled()) {
-                mFusedLocationClient.lastLocation.addOnCompleteListener(requireActivity()) { task ->
-                    val location: Location? = task.result
-                    if (location != null) {
-                        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-                        val list: MutableList<Address>? =
-                            geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                        binding.apply {
-//                            tvLocality.text = "Locality\n${list[0].locality}"
-//                            tvAddress.text = "Address\n${list[0].getAddressLine(0)}"
-                            latitude = list?.get(0)?.latitude!!.toDouble()
-                            longitude = list?.get(0)?.longitude!!.toDouble()
-                            address = list?.get(0)?.getAddressLine(0).toString()
-                            saveTransaction(addTransactionView, listOf(address, latitude, longitude))
+        if (!locationAccessPreviouslyDenied()) {
+            if (checkPermissions()) {
+                if (isLocationEnabled()) {
+                    mFusedLocationClient.lastLocation.addOnCompleteListener(requireActivity()) { task ->
+                        val location: Location? = task.result
+                        if (location != null) {
+                            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+                            val list: MutableList<Address>? =
+                                geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                            binding.apply {
+                                latitude = list?.get(0)?.latitude!!.toDouble()
+                                longitude = list?.get(0)?.longitude!!.toDouble()
+                                address = list?.get(0)?.getAddressLine(0).toString()
+                            }
+                            callback(true, address, latitude, longitude)
+                        } else {
+                            callback(false, address, latitude, longitude)
                         }
                     }
+                } else {
+                    Toast.makeText(requireContext(), "Please turn on location", Toast.LENGTH_LONG)
+                        .show()
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                    callback(false, address, latitude, longitude)
                 }
             } else {
-                Toast.makeText(requireContext(), "Please turn on location", Toast.LENGTH_LONG).show()
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(intent)
+                requestPermissions()
+                callback(false, address, latitude, longitude)
             }
         } else {
-            requestPermissions()
+            callback(true, address, latitude, longitude)
         }
     }
+
+    private fun locationAccessPreviouslyDenied(): Boolean {
+        val deniedPreviously = ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION )
+                && ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION )
+        return deniedPreviously
+    }
+
+
     private fun isLocationEnabled(): Boolean {
         val locationManager: LocationManager =
             requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -214,15 +201,9 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
         )
     }
     private fun checkPermissions(): Boolean {
-        if (ActivityCompat.checkSelfPermission(
-                requireActivity(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                requireActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
+        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+        {
             return true
         }
         return false
@@ -237,18 +218,15 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
             permissionId
         )
     }
-    @SuppressLint("MissingSuperCall")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == permissionId) {
-            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                getLocation()
-            }
-        }
-    }
-
-
+//    @SuppressLint("MissingSuperCall")
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<String>,
+//        grantResults: IntArray
+//    ) {
+//        if (requestCode == permissionId) {
+//            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+//            }
+//        }
+//    }
 }
