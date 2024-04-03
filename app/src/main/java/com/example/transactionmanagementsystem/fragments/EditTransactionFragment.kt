@@ -109,6 +109,9 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         binding.buttonChangeLocation.setOnClickListener {
             getLocation()
         }
+        binding.editTransactionAddress.setOnClickListener {
+            openGoogleMaps()
+        }
     }
     @SuppressLint("MissingPermission", "SetTextI18n")
     private fun getLocation() {
@@ -232,5 +235,15 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         super.onDestroy()
         editTransactionBinding = null
     }
+
+    fun openGoogleMaps() {
+        val latitude = binding.editTransactionLatitude.text.toString().toDouble()
+        val longitude = binding.editTransactionLongitude.text.toString().toDouble()
+        val mapUri = Uri.parse("https://maps.google.com/maps/search/$latitude,$longitude")
+        val intent = Intent(Intent.ACTION_VIEW, mapUri)
+        intent.setPackage("com.google.android.apps.maps")
+        startActivity(intent)
+    }
+
 
 }
