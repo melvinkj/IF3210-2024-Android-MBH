@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.transactionmanagementsystem.databinding.ActivityMainBinding
@@ -34,7 +35,6 @@ private const val ARG_PARAM2 = "param2"
  */
 class SettingsFragment : Fragment() {
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -50,6 +50,7 @@ class SettingsFragment : Fragment() {
         val saveXlsxButton = view.findViewById<Button>(R.id.save1Btn)
         val saveXlsButton = view.findViewById<Button>(R.id.save2Btn)
         val sendButton = view.findViewById<Button>(R.id.sendBtn)
+        val logoutButton = view.findViewById<Button>(R.id.logout)
 
         // Set OnClickListener on the button
 
@@ -75,9 +76,15 @@ class SettingsFragment : Fragment() {
             startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
         }
 
+        // Send Email
         sendButton.setOnClickListener {
             // Perform your task here when the button is clicked
             sendEmail()
+        }
+
+        // Logout
+        logoutButton.setOnClickListener {
+            logout()
         }
     }
 
@@ -153,6 +160,23 @@ class SettingsFragment : Fragment() {
             println(intent.resolveActivity(requireActivity().packageManager) != null)
             Toast.makeText( requireContext(),"Required App is not installed", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun logout() {
+        // Clear the saved token
+        val token = activity?.getSharedPreferences("UserToken", MODE_PRIVATE)
+        val editor = token?.edit()
+        editor?.remove("token")
+        editor?.apply()
+
+        // Stop the TokenExpiryService
+        val serviceIntent = Intent(context, TokenExpiryService::class.java)
+        context?.stopService(serviceIntent)
+
+        // Redirect to the login page
+        val intent = Intent(context, LoginActivity::class.java)
+        startActivity(intent)
+        activity?.finish()
     }
 
     // For triggering the saveFile function
