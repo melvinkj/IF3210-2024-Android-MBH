@@ -20,6 +20,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.view.MenuHost
@@ -67,8 +68,15 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         currentTransaction = args.transaction!!
         val dateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
 
+        val categoryOptions = arrayOf("Income", "Expense")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categoryOptions)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.editTransactionCategory.adapter = adapter
+
         binding.editTransactionTitle.setText(currentTransaction.title)
-        binding.editTransactionCategory.setText(currentTransaction.category)
+        val selectedCategoryIndex = categoryOptions.indexOf(currentTransaction.category)
+
+        binding.editTransactionCategory.setSelection(selectedCategoryIndex)
         binding.editTransactionAmount.setText(currentTransaction.amount.toString())
         binding.editTransactionDate.setText(dateFormat.format(currentTransaction.date))
         binding.editTransactionAddress.setText(currentTransaction.address)
@@ -76,32 +84,9 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         binding.editTransactionLongitude.setText(currentTransaction.longitude.toString())
 
 
+
         binding.buttonSave.setOnClickListener {
-            val transactionTitle = binding.editTransactionTitle.text.toString().trim()
-            val transactionCategory = binding.editTransactionCategory.text.toString().trim()
-            val transactionAmountStr = binding.editTransactionAmount.text.toString().trim()
-            val address = binding.editTransactionAddress.text.toString().trim()
-            var transactionAmount: Double? = null
-            if (transactionTitle.isEmpty()) {
-                Toast.makeText(context, "Title must be filled", Toast.LENGTH_SHORT).show()
-            }
-            if (transactionCategory.isEmpty()) {
-                Toast.makeText(context, "Category must be filled", Toast.LENGTH_SHORT).show()
-            }
-            if (transactionAmountStr.isEmpty()) {
-                Toast.makeText(context, "Category must be filled", Toast.LENGTH_SHORT).show()
-            } else {
-                transactionAmount = transactionAmountStr.toDouble()
-
-            }
-
-            if (transactionTitle.isNotEmpty() && transactionCategory.isNotEmpty() && transactionAmount != null) {
-                val transaction = Transaction(currentTransaction.id, transactionTitle, transactionCategory, transactionAmount, currentTransaction.date, address, currentTransaction.latitude, currentTransaction.longitude)
-                transactionViewModel.editTransaction(transaction)
-
-                Toast.makeText(context, "Update saved", Toast.LENGTH_SHORT).show()
-                view.findNavController().popBackStack(R.id.navbarFragment, false)
-            }
+            saveTransaction(view)
         }
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -111,6 +96,35 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         }
         binding.editTransactionAddress.setOnClickListener {
             openGoogleMaps()
+        }
+
+    }
+
+    private fun saveTransaction(view: View){
+        val transactionTitle = binding.editTransactionTitle.text.toString().trim()
+        val transactionCategory = binding.editTransactionCategory.selectedItem.toString().trim()
+        val transactionAmountStr = binding.editTransactionAmount.text.toString().trim()
+        val address = binding.editTransactionAddress.text.toString().trim()
+        var transactionAmount: Double? = null
+        if (transactionTitle.isEmpty()) {
+            Toast.makeText(context, "Title must be filled", Toast.LENGTH_SHORT).show()
+        }
+        if (transactionCategory.isEmpty()) {
+            Toast.makeText(context, "Category must be filled", Toast.LENGTH_SHORT).show()
+        }
+        if (transactionAmountStr.isEmpty()) {
+            Toast.makeText(context, "Category must be filled", Toast.LENGTH_SHORT).show()
+        } else {
+            transactionAmount = transactionAmountStr.toDouble()
+
+        }
+
+        if (transactionTitle.isNotEmpty() && transactionCategory.isNotEmpty() && transactionAmount != null) {
+            val transaction = Transaction(currentTransaction.id, transactionTitle, transactionCategory, transactionAmount, currentTransaction.date, address, currentTransaction.latitude, currentTransaction.longitude)
+            transactionViewModel.editTransaction(transaction)
+
+            Toast.makeText(context, "Update saved", Toast.LENGTH_SHORT).show()
+            view.findNavController().popBackStack(R.id.navbarFragment, false)
         }
     }
     @SuppressLint("MissingPermission", "SetTextI18n")

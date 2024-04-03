@@ -19,6 +19,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -68,6 +69,12 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
         addTransactionView = view
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+        val categoryOptions = arrayOf("Income", "Expense")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categoryOptions)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.addTransactionCategory.adapter = adapter
+
         binding.buttonSave.setOnClickListener {
             saveTransaction()
         }
@@ -98,7 +105,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
             if (success) {
                 // Location fetched successfully, proceed with saving the transaction
                 val transactionTitle = binding.addTransactionTitle.text.toString().trim()
-                val transactionCategory = binding.addTransactionCategory.text.toString().trim()
+                val transactionCategory = binding.addTransactionCategory.selectedItem.toString().trim()
                 val transactionAmountStr = binding.addTransactionAmount.text.toString().trim()
                 val transactionDate = Date()
 
