@@ -7,8 +7,11 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.transactionmanagementsystem.databinding.CardViewTransactionBinding
+import com.example.transactionmanagementsystem.fragments.NavbarFragmentDirections
 import com.example.transactionmanagementsystem.fragments.TransactionListFragmentDirections
 import com.example.transactionmanagementsystem.models.Transaction
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class TransactionCardAdapter
     : RecyclerView.Adapter<TransactionCardAdapter.TransactionCardViewHolder>(){
@@ -19,9 +22,10 @@ class TransactionCardAdapter
     {
         fun bindTransaction(transaction: Transaction)
         {
+            val dateFormat = SimpleDateFormat("dd/M/yyyy")
             itemBinding.transactionTitle.text = transaction.title
             itemBinding.transactionCategory.text = transaction.category
-            itemBinding.transactionDate.text = transaction.date.toString()
+            itemBinding.transactionDate.text = dateFormat.format(transaction.date)
             itemBinding.transactionAmount.text = "IDR ${transaction.amount}"
             itemBinding.transactionAddress.text = transaction.address
         }
@@ -53,14 +57,15 @@ class TransactionCardAdapter
     override fun onBindViewHolder(holder: TransactionCardViewHolder, position: Int) {
         val currentTransaction = differ.currentList[position]
 
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy")
         holder.itemBinding.transactionTitle.text = currentTransaction.title
         holder.itemBinding.transactionCategory.text = currentTransaction.category
-        holder.itemBinding.transactionDate.text = currentTransaction.date.toString()
+        holder.itemBinding.transactionDate.text = dateFormat.format(currentTransaction.date)
         holder.itemBinding.transactionAmount.text = "IDR ${currentTransaction.amount}"
         holder.itemBinding.transactionAddress.text = currentTransaction.address
 
         holder.itemView.setOnClickListener {
-            val direction = TransactionListFragmentDirections.actionTransactionListFragmentToEditTransactionFragment(currentTransaction)
+            val direction = NavbarFragmentDirections.actionNavbarFragmentToEditTransactionFragment2(currentTransaction)
             it.findNavController().navigate(direction)
         }
     }
