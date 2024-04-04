@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -30,6 +31,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import android.provider.MediaStore
 import android.widget.ImageButton
+import android.widget.Toast
+import android.provider.Settings
 
 class TwibbonFragment : Fragment() {
     private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
@@ -42,6 +45,8 @@ class TwibbonFragment : Fragment() {
     private lateinit var twibbonImageView: ImageView
     private lateinit var capturedImageView: ImageView
 
+    private val permissionId = 2
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,36 +56,40 @@ class TwibbonFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        cameraExecutor = Executors.newSingleThreadExecutor()
 
-        twibbonImageView = view.findViewById(R.id.twibbonImageView)
-        capturedImageView = requireView().findViewById<ImageView>(R.id.capturedImageView)
+        if (checkPermissions()) {
+            twibbonImageView = view.findViewById(R.id.twibbonImageView)
+            capturedImageView = requireView().findViewById<ImageView>(R.id.capturedImageView)
 
-        val retakeButton = view.findViewById<ImageButton>(R.id.retakeButton)
-        retakeButton.setOnClickListener {
-            // Set the visibility of the viewFinder to VISIBLE
-            viewFinder.visibility = View.VISIBLE
+            val retakeButton = view.findViewById<ImageButton>(R.id.retakeButton)
+            retakeButton.setOnClickListener {
+                // Set the visibility of the viewFinder to VISIBLE
+                viewFinder.visibility = View.VISIBLE
 
-            // Set the visibility of the capturedImageView to GONE
-            val capturedImageView = requireView().findViewById<ImageView>(R.id.capturedImageView)
-            capturedImageView.visibility = View.GONE
-        }
-        outputDirectory = getOutputDirectory()
+                // Set the visibility of the capturedImageView to GONE
+                val capturedImageView = requireView().findViewById<ImageView>(R.id.capturedImageView)
+                capturedImageView.visibility = View.GONE
+            }
+            outputDirectory = getOutputDirectory()
 
-        if (allPermissionsGranted()) {
-            startCamera()
+            if (allPermissionsGranted()) {
+                startCamera()
+            } else {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    REQUIRED_PERMISSIONS,
+                    REQUEST_CODE_PERMISSIONS
+                )
+            }
+
+            cameraExecutor = Executors.newSingleThreadExecutor()
+            val captureButton = view.findViewById<ImageButton>(R.id.captureButton)
+
+            captureButton.setOnClickListener {
+                takePhoto()
+            }
         } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                REQUIRED_PERMISSIONS,
-                REQUEST_CODE_PERMISSIONS
-            )
-        }
-
-        val captureButton = view.findViewById<ImageButton>(R.id.captureButton)
-
-        captureButton.setOnClickListener {
-            takePhoto()
+            requestPermissions()
         }
     }
 
@@ -89,46 +98,51 @@ class TwibbonFragment : Fragment() {
     }
 
     private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-        cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
+        if (checkPermissions()) {
+            // If permissions are granted, start the camera
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+            cameraProviderFuture.addListener({
+                val cameraProvider = cameraProviderFuture.get()
 
-            viewFinder = requireView().findViewById(R.id.viewFinder)
-            val preview = Preview.Builder()
-                .build()
-                .also {
-                    it.setSurfaceProvider(viewFinder.surfaceProvider)
+                viewFinder = requireView().findViewById(R.id.viewFinder)
+                val preview = Preview.Builder()
+                    .build()
+                    .also {
+                        it.setSurfaceProvider(viewFinder.surfaceProvider)
+                    }
+
+                imageCapture = ImageCapture.Builder()
+                    .build()
+
+                // Add a variable to hold the current camera selector
+                var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+                // Add button to switch camera
+                val switchCameraButton = requireView().findViewById<ImageButton>(R.id.switchCamera)
+                switchCameraButton.setOnClickListener {
+                    cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                        CameraSelector.DEFAULT_FRONT_CAMERA
+                    } else {
+                        CameraSelector.DEFAULT_BACK_CAMERA
+                    }
+                    try {
+                        cameraProvider.unbindAll()
+                        cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+                    } catch (exc: Exception) {
+                        Log.e(TAG, "Use case binding failed", exc)
+                    }
                 }
 
-            imageCapture = ImageCapture.Builder()
-                .build()
-
-            // Add a variable to hold the current camera selector
-            var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-            // Add switch camera button
-            val switchCameraButton = requireView().findViewById<ImageButton>(R.id.switchCamera)
-            switchCameraButton.setOnClickListener {
-                cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
-                    CameraSelector.DEFAULT_FRONT_CAMERA
-                } else {
-                    CameraSelector.DEFAULT_BACK_CAMERA
-                }
                 try {
                     cameraProvider.unbindAll()
                     cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
                 } catch (exc: Exception) {
                     Log.e(TAG, "Use case binding failed", exc)
                 }
-            }
-
-            try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
-            } catch (exc: Exception) {
-                Log.e(TAG, "Use case binding failed", exc)
-            }
-        }, ContextCompat.getMainExecutor(requireContext()))
+            }, ContextCompat.getMainExecutor(requireContext()))
+        } else {
+            requestPermissions()
+        }
     }
 
     private fun getOutputDirectory(): File {
@@ -207,6 +221,37 @@ class TwibbonFragment : Fragment() {
                     Log.e(TAG, "Error capturing photo: ${exception.message}", exception)
                 }
             }
+        )
+    }
+
+    private fun checkPermissions(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            requireActivity(),
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestPermissions() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+            // Show a rationale for why the permissions are needed
+            Toast.makeText(
+                requireContext(),
+                "Camera permission is required for this feature",
+                Toast.LENGTH_LONG
+            ).show()
+        } else {
+            // Direct the user to app settings to enable permissions manually
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", requireActivity().packageName, null)
+            intent.data = uri
+            startActivity(intent)
+        }
+
+        // Request permissions regardless
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(Manifest.permission.CAMERA),
+            permissionId
         )
     }
 
