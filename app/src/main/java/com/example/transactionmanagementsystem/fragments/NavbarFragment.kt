@@ -12,6 +12,7 @@ import com.example.transactionmanagementsystem.GraphFragment
 import com.example.transactionmanagementsystem.R
 import com.example.transactionmanagementsystem.ScanFragment
 import com.example.transactionmanagementsystem.SettingsFragment
+import com.example.transactionmanagementsystem.TwibbonFragment
 import com.example.transactionmanagementsystem.TransactionFragment
 import com.example.transactionmanagementsystem.databinding.FragmentNavbarBinding
 
@@ -39,6 +40,7 @@ class NavbarFragment : Fragment(R.layout.fragment_navbar) {
                 R.id.scan -> replaceFragment(ScanFragment())
                 R.id.graph -> replaceFragment(GraphFragment())
                 R.id.settings -> replaceFragment(SettingsFragment())
+                R.id.twibbon -> replaceFragment(TwibbonFragment())
                 else -> {}
             }
             true
