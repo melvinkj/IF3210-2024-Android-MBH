@@ -77,7 +77,8 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         val selectedCategoryIndex = categoryOptions.indexOf(currentTransaction.category)
 
         binding.editTransactionCategory.setSelection(selectedCategoryIndex)
-        binding.editTransactionAmount.setText(currentTransaction.amount.toString())
+        val amountString = String.format("%.0f", currentTransaction.amount)
+        binding.editTransactionAmount.setText(amountString)
         binding.editTransactionDate.setText(dateFormat.format(currentTransaction.date))
         binding.editTransactionAddress.setText(currentTransaction.address)
         binding.editTransactionLatitude.setText(currentTransaction.latitude.toString())
