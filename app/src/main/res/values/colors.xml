@@ -9,5 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="blue">#FF0000FF</color>
     <color name="skyBlue">#87CEEB</color>
+    <color name="incomeColor">#69923e</color>
+    <color name="expenseColor">#ef5350</color>
+
 
 </resources>
