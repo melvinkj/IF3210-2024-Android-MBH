@@ -1,25 +1,35 @@
 package com.example.transactionmanagementsystem
 
-import android.app.Activity
+// For dummy transaction
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
-import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import com.example.transactionmanagementsystem.databinding.ActivityMainBinding
+import androidx.fragment.app.Fragment
 import com.example.transactionmanagementsystem.models.Transaction
+import com.example.transactionmanagementsystem.viewmodel.TransactionViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
-// For dummy transaction
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -35,6 +45,7 @@ private const val ARG_PARAM2 = "param2"
  */
 class SettingsFragment : Fragment() {
 
+    private lateinit var transactionViewModel : TransactionViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,7 +62,7 @@ class SettingsFragment : Fragment() {
         val saveXlsButton = view.findViewById<Button>(R.id.save2Btn)
         val sendButton = view.findViewById<Button>(R.id.sendBtn)
         val logoutButton = view.findViewById<Button>(R.id.logout)
-
+        transactionViewModel = (activity as MainActivity).transactionViewModel
         // Set OnClickListener on the button
 
         // Save as XLSX file
@@ -79,7 +90,15 @@ class SettingsFragment : Fragment() {
         // Send Email
         sendButton.setOnClickListener {
             // Perform your task here when the button is clicked
-            sendEmail()
+            CoroutineScope(Dispatchers.Main).launch {
+                val transactions = transactionViewModel.getTransactionsOrderedById()
+                withContext(Dispatchers.Main) {
+                    createAndSaveExcelFile(transactions)
+                }
+
+            }
+            Toast.makeText(requireContext(), "Saving Excel...", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "File Saved", Toast.LENGTH_LONG).show()
         }
 
         // Logout
@@ -92,7 +111,7 @@ class SettingsFragment : Fragment() {
         const val CREATE_FILE_REQUEST_CODE = 1
     }
 
-    // Dummy transactions for saving file
+//     Dummy transactions for saving file
     fun getDummyTransactions(): List<Transaction> {
         // Replace with your own dummy data
         val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -102,6 +121,52 @@ class SettingsFragment : Fragment() {
             Transaction(1, "Banana", "Fruit", 10000.0, date, "", 20.0, 10.0),
             Transaction(2, "Carrot", "Veggies", 5000.0, date, "", 20.0, 10.0)
         )
+    }
+    private suspend fun createAndSaveExcelFile(transactions: Flow<List<Transaction>>) {
+
+        withContext(Dispatchers.IO){
+            val workbook = XSSFWorkbook()
+
+            // Create a blank sheet
+            val sheet = workbook.createSheet("Transactions")
+
+            // Create some data rows
+            val headerRow = sheet.createRow(0)
+            headerRow.createCell(0).setCellValue("Date")
+            headerRow.createCell(1).setCellValue("Transaction Name")
+            headerRow.createCell(2).setCellValue("Category")
+            headerRow.createCell(3).setCellValue("Amount")
+            headerRow.createCell(4).setCellValue("Address")
+            headerRow.createCell(5).setCellValue("Latitude")
+            headerRow.createCell(6).setCellValue("Longitude")
+            convertFlowToList{listTransaction ->
+                listTransaction.forEachIndexed(){ index, transaction ->
+                    val row : Row = sheet.createRow(index+1)
+                    row.createCell(0).setCellValue(transaction.date.toString())
+                    row.createCell(1).setCellValue(transaction.title.toString())
+                    row.createCell(2).setCellValue(transaction.category.toString())
+                    row.createCell(3).setCellValue(transaction.amount.toDouble())
+                    row.createCell(4).setCellValue(transaction.address.toString())
+                    row.createCell(5).setCellValue(transaction.latitude.toString())
+                    row.createCell(6).setCellValue(transaction.longitude.toString())
+
+                }
+                val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "kontolodon.xlsx")
+                val fileOutputStream = FileOutputStream(file)
+                workbook.write(fileOutputStream)
+                fileOutputStream.close()
+                Log.d("Excel", "Excel file saved successfully at: ${file.absolutePath}")
+            }
+        }
+    }
+
+    private suspend fun convertFlowToList(callback: (List<Transaction>) -> Unit) {
+        val flow = transactionViewModel.getTransactionsOrderedById()
+        val resultList = mutableListOf<Transaction>() // Initialize an empty mutable list
+        flow.collect { transactions -> // Collect elements emitted by the flow
+            resultList.addAll(transactions) // Add each list of transactions to the result list
+            callback(resultList)
+        }
     }
 
     // Save file as XLSX or XLS
@@ -178,16 +243,18 @@ class SettingsFragment : Fragment() {
         activity?.finish()
     }
 
+
     // For triggering the saveFile function
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            data?.data?.also { uri ->
-                lifecycleScope.launch {
-                    saveFile(getDummyTransactions(), uri)
-                }
-            }
-        }
-    }
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+//            val transactions : List<Transaction> = convertFlowToList(transactionViewModel.getTransactionsOrderedById())
+//            data?.data?.also { uri ->
+//                lifecycleScope.launch {
+//                    saveFile(transactions, uri)
+//                }
+//            }
+//        }
+//    }
 
 }
