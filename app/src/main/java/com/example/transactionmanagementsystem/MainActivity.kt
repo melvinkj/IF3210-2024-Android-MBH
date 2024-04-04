@@ -28,19 +28,11 @@ class MainActivity : BaseActivity() {
 
     lateinit var transactionViewModel: TransactionViewModel
 
-    private fun setupViewModel(){
-        val transactionRepository = TransactionRepository(TransactionDatabase(this))
-        val viewModelProviderFactory = TransactionViewModelFactory(application, transactionRepository)
-        transactionViewModel = ViewModelProvider(this, viewModelProviderFactory)[TransactionViewModel::class.java]
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            binding.navbar.setBackgroundColor(0xFFFFFFF.toInt())
-        }
+
 
         setContentView(binding.root)
         setupViewModel()
@@ -54,30 +46,13 @@ class MainActivity : BaseActivity() {
 //            adapter = TransactionCardAdapter()
 //        }
 
-        supportActionBar?.hide()
-//        bottomNavigationView = findViewById(R.id.navbar)
+//        supportActionBar?.hide()
 
-        replaceFragment(TransactionFragment())
 
-        binding.navbar.setOnItemSelectedListener{
-            when(it.itemId){
-                R.id.transaction -> replaceFragment(TransactionFragment())
-                R.id.scan -> replaceFragment(ScanFragment())
-                R.id.graph -> replaceFragment(GraphFragment())
-                R.id.settings -> replaceFragment(SettingsFragment())
-            else -> {}
-            }
-            true
-
-        }
     }
-
-    private fun replaceFragment(fragment : Fragment){
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.container, fragment)
-        fragmentTransaction.commit()
+    private fun setupViewModel(){
+        val transactionRepository = TransactionRepository(TransactionDatabase(this))
+        val viewModelProviderFactory = TransactionViewModelFactory(application, transactionRepository)
+        transactionViewModel = ViewModelProvider(this, viewModelProviderFactory)[TransactionViewModel::class.java]
     }
-
-
 }

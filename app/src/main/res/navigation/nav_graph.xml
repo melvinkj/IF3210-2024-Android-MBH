@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/transactionListFragment">
+    app:startDestination="@id/navbarFragment">
 
     <fragment
         android:id="@+id/transactionListFragment"
@@ -22,6 +23,9 @@
         <action
             android:id="@+id/action_addTransactionFragment_to_transactionListFragment"
             app:destination="@id/transactionListFragment" />
+        <action
+            android:id="@+id/action_addTransactionFragment_to_navbarFragment2"
+            app:destination="@id/navbarFragment" />
     </fragment>
     <fragment
         android:id="@+id/editTransactionFragment"
@@ -35,6 +39,21 @@
             android:name="transaction"
             app:argType="com.example.transactionmanagementsystem.models.Transaction"
             app:nullable="true"/>
+        <action
+            android:id="@+id/action_editTransactionFragment_to_navbarFragment2"
+            app:destination="@id/navbarFragment" />
 
+    </fragment>
+    <fragment
+        android:id="@+id/navbarFragment"
+        android:name="com.example.transactionmanagementsystem.fragments.NavbarFragment"
+        android:label="fragment_navbar"
+        tools:layout="@layout/fragment_navbar" >
+        <action
+            android:id="@+id/action_navbarFragment_to_addTransactionFragment2"
+            app:destination="@id/addTransactionFragment" />
+        <action
+            android:id="@+id/action_navbarFragment_to_editTransactionFragment2"
+            app:destination="@id/editTransactionFragment" />
     </fragment>
 </navigation>

@@ -48,7 +48,7 @@ class TransactionListFragment : Fragment(R.layout.fragment_transaction_list), Se
         setupTransactionListRecyclerView()
 
         binding.addTransactionFAB.setOnClickListener {
-            it.findNavController().navigate(R.id.action_transactionListFragment_to_addTransactionFragment)
+            it.findNavController().navigate(R.id.action_navbarFragment_to_addTransactionFragment2)
         }
     }
 
