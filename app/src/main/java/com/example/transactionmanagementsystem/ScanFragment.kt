@@ -73,11 +73,7 @@ class   ScanFragment : Fragment() {
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var viewFinder  : PreviewView
 
-    private var needlogin by Delegates.notNull<Boolean>()
-
-
     private lateinit var transactionViewModel: TransactionViewModel
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -197,66 +193,62 @@ class   ScanFragment : Fragment() {
     }
 
     private fun sendToServer(selectedImageUri: Uri){
-        needlogin = false
         Toast.makeText(requireContext(), "Sending...", Toast.LENGTH_LONG).show()
-        val token = requireActivity().getSharedPreferences("UserToken", Service.MODE_PRIVATE).getString("token", null)
+        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaW0iOiIxMzUyMTA3OSIsImlhdCI6MTcxMjIxMzUzOCwiZXhwIjoxNzEyMjEzODM4fQ.rog5Qy2hken2tns0lEygqL5NGEIUVUf6C5jylP4-dek"
+//        val token = requireActivity().getSharedPreferences("UserToken", Service.MODE_PRIVATE).getString("token", null)
         val files = uriToFile(selectedImageUri, requireContext())
         val requestFile = RequestBody.create(MediaType.parse("image/jpeg"), files)
         val file = MultipartBody.Part.createFormData("file", files?.name, requestFile)
         val retIn = RetrofitInstance.getRetrofitInstance().create(ApiInterface::class.java)
 
-        if(!needlogin){
-            retIn.uploadBill("Bearer $token", file).enqueue(object: retrofit2.Callback <ResponseBody> {
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    Toast.makeText(
-                        requireContext(),
-                        t.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+        retIn.uploadBill("Bearer $token", file).enqueue(object: retrofit2.Callback <ResponseBody> {
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Toast.makeText(
+                    requireContext(),
+                    t.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
 
-                override fun onResponse(call: Call<ResponseBody>, response: retrofit2.Response<ResponseBody>){
-                    if(response.isSuccessful){
-                        Toast.makeText(requireContext(), "Success: ${response.code()}", Toast.LENGTH_SHORT).show()
-                        val responseBody = response.body()?.string()
+            override fun onResponse(call: Call<ResponseBody>, response: retrofit2.Response<ResponseBody>){
+                if(response.isSuccessful){
+                    Toast.makeText(requireContext(), "Success: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    val responseBody = response.body()?.string()
 
-                        val jsonObject = JSONObject(responseBody)
-                        val itemsObject = jsonObject.getJSONObject("items")
-                        val itemsArray = itemsObject.getJSONArray("items")
+                    val jsonObject = JSONObject(responseBody)
+                    val itemsObject = jsonObject.getJSONObject("items")
+                    val itemsArray = itemsObject.getJSONArray("items")
 
-                        var amount = 0.0
+                    var amount = 0.0
 
-                        for(i in 0 until itemsArray.length()){
-                            val itemObject = itemsArray.getJSONObject(i)
-                            val qty = itemObject.getInt("qty")
-                            val price = itemObject.getDouble("price")
-                            amount += (qty * price)
-                        }
-
-                        val date = Date()
-                        val category = "EXPENSE"
-                        val title = "Transaction " + date.toString()
-                        val latitude = -6.8915
-                        val longitude = 107.6107
-                        val address = "ITB"
-
-                        transactionViewModel = (activity as MainActivity).transactionViewModel
-
-                        val newTransaction = Transaction(0, title, category, amount, date, address, latitude, longitude)
-                        transactionViewModel.addTransaction(newTransaction)
-                        Toast.makeText(requireContext(), "Transaction Saved!", Toast.LENGTH_SHORT).show()
-
-                    }else if(response.code() == 401){
-                        Toast.makeText(requireContext(), "need relogin", Toast.LENGTH_SHORT).show()
+                    for(i in 0 until itemsArray.length()){
+                        val itemObject = itemsArray.getJSONObject(i)
+                        val qty = itemObject.getInt("qty")
+                        val price = itemObject.getDouble("price")
+                        amount += (qty * price)
                     }
-                    else{
-                        Toast.makeText(requireContext(), "Failed: ${response.code()}", Toast.LENGTH_SHORT).show()
-                    }
+
+                    val date = Date()
+                    val category = "EXPENSE"
+                    val title = "Transaction " + date.toString()
+                    val latitude = -6.8915
+                    val longitude = 107.6107
+                    val address = "ITB"
+
+                    transactionViewModel = (activity as MainActivity).transactionViewModel
+
+                    val newTransaction = Transaction(0, title, category, amount, date, address, latitude, longitude)
+                    transactionViewModel.addTransaction(newTransaction)
+                    Toast.makeText(requireContext(), "Transaction Saved!", Toast.LENGTH_SHORT).show()
+
+                }else if(response.code() == 401){
+                    Toast.makeText(requireContext(), "need relogin", Toast.LENGTH_SHORT).show()
                 }
-            })
-        }else{
-            Toast.makeText(requireContext(), "LOGOUTTT ASW", Toast.LENGTH_SHORT).show()
-        }
+                else{
+                    Toast.makeText(requireContext(), "Failed: ${response.code()}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
 
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
