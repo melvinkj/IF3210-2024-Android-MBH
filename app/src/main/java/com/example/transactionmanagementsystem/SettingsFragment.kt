@@ -152,7 +152,6 @@ class SettingsFragment : Fragment() {
             putExtra(Intent.EXTRA_SUBJECT, subject)
             putExtra(Intent.EXTRA_TEXT, message)
         }
-//        intent.type = "text/plain"
 
         if(intent.resolveActivity(requireActivity().packageManager) != null){
             startActivity(intent)
