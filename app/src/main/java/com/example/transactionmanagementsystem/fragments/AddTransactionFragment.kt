@@ -105,7 +105,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
             if (success) {
                 // Location fetched successfully, proceed with saving the transaction
                 val transactionTitle = binding.addTransactionTitle.text.toString().trim()
-                val transactionCategory = binding.addTransactionCategory.selectedItem.toString().trim()
+                val transactionCategory = binding.addTransactionCategory.selectedItem.toString().trim().uppercase()
                 val transactionAmountStr = binding.addTransactionAmount.text.toString().trim()
                 val transactionDate = Date()
 

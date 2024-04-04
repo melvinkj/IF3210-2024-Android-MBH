@@ -1,33 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".GraphFragment">
 
-    <!-- Header aligned to the top -->
-    <RelativeLayout
-        android:id="@+id/header"
+
+
+<!--    <com.github.mikephil.charting.charts.PieChart/>-->
+
+    <com.anychart.AnyChartView
+        android:id="@+id/pieChart"
+        android:layout_marginVertical="15sp"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBaseline_toTopOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:background="#000000"
-        android:gravity="center">
+        android:layout_height="match_parent"
+        android:layout_marginTop="0dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Graph"
-            android:textColor="#FFFFFF"
-            android:textSize="25sp" />
-    </RelativeLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Graph Fragment"
-        android:textSize="25dp"
-        android:layout_centerInParent="true"/>
 
-</RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

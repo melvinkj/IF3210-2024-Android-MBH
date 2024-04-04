@@ -102,7 +102,7 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
 
     private fun saveTransaction(view: View){
         val transactionTitle = binding.editTransactionTitle.text.toString().trim()
-        val transactionCategory = binding.editTransactionCategory.selectedItem.toString().trim()
+        val transactionCategory = binding.editTransactionCategory.selectedItem.toString().trim().uppercase()
         val transactionAmountStr = binding.editTransactionAmount.text.toString().trim()
         val address = binding.editTransactionAddress.text.toString().trim()
         var transactionAmount: Double? = null

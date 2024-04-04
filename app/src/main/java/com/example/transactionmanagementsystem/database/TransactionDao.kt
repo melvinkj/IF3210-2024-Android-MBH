@@ -29,5 +29,12 @@ interface TransactionDao {
     fun getTransactionsOrderedByDate(): Flow<List<Transaction>>
     @Query("SELECT * FROM transactions WHERE title LIKE :query OR category LIKE :query OR address LIKE :query")
     fun searchTransaction(query: String?): Flow<List<Transaction>>
-
+//    @Query("SELECT SUM(amount) FROM transactions WHERE category = 'EXPENSE' AND userId = :userId")
+//    fun getExpenseTotalByUserId(userId: String): Flow<Double?>
+//    @Query("SELECT SUM(amount) FROM transactions WHERE category = 'INCOME' AND userId = :userId")
+//    fun getIncomeTotalByUserId(userId: String): Flow<Double?>
+    @Query("SELECT SUM(amount) FROM transactions WHERE category = 'EXPENSE'")
+    fun getExpenseTotalByUserId(): Flow<Double?>
+    @Query("SELECT SUM(amount) FROM transactions WHERE category = 'INCOME'")
+    fun getIncomeTotalByUserId(): Flow<Double?>
 }
