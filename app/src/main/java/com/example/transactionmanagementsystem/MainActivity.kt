@@ -41,7 +41,7 @@ class MainActivity : BaseActivity() {
 
         // Register the broadcast receiver
         LocalBroadcastManager.getInstance(this)
-            .registerReceiver(randomizeTransactionReceiver, IntentFilter("RANDOMIZE _TRANSACTION"))
+            .registerReceiver(randomizeTransactionReceiver, IntentFilter("RANDOMIZE_TRANSACTION"))
     }
     private fun setupViewModel(){
         val transactionRepository = TransactionRepository(TransactionDatabase(this))
