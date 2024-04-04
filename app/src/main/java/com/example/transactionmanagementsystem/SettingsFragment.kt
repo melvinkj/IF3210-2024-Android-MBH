@@ -10,29 +10,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
-import android.content.Context
 import android.content.Context.MODE_PRIVATE
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.transactionmanagementsystem.databinding.ActivityMainBinding
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.transactionmanagementsystem.models.Transaction
 import kotlinx.coroutines.launch
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import java.io.File
 // For dummy transaction
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SettingsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SettingsFragment : Fragment() {
 
     override fun onCreateView(
@@ -47,12 +34,18 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Find the button by its ID
+        val randomizeButton = view.findViewById<Button>(R.id.randomizeBtn)
         val saveXlsxButton = view.findViewById<Button>(R.id.save1Btn)
         val saveXlsButton = view.findViewById<Button>(R.id.save2Btn)
         val sendButton = view.findViewById<Button>(R.id.sendBtn)
         val logoutButton = view.findViewById<Button>(R.id.logout)
 
         // Set OnClickListener on the button
+        randomizeButton.setOnClickListener {
+            // Trigger the broadcast
+            LocalBroadcastManager.getInstance(requireContext())
+                .sendBroadcast(Intent("RANDOMIZE_TRANSACTION"))
+        }
 
         // Save as XLSX file
         saveXlsxButton.setOnClickListener {
