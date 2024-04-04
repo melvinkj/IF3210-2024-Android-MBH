@@ -98,7 +98,7 @@ class   ScanFragment : Fragment() {
             ActivityCompat.requestPermissions(
                 requireActivity(),
                 REQUIRED_PERMISSIONS,
-                REQUEST_CODE_PERMISSIONS
+                REQUEST_CAMERA_PERMISSIONS
             )
         }
         captureButton.setOnClickListener { takePhoto() }
@@ -259,11 +259,24 @@ class   ScanFragment : Fragment() {
         }
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CAMERA_PERMISSIONS) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Camera permission has been granted, proceed with camera operations
+                startCamera()
+            } else {
+                // Camera permission has been denied, show a message or handle the situation
+                Toast.makeText(requireContext(), "Camera permission is required to use the camera.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     companion object {
         private const val TAG = "ScanFragment"
         private const val PICK_IMAGE_REQUEST = 102
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
-        private const val REQUEST_CODE_PERMISSIONS = 101
+        private const val REQUEST_CAMERA_PERMISSIONS = 101
     }
 
 }
