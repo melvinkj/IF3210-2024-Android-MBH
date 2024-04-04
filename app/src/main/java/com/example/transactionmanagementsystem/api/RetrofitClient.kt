@@ -1,6 +1,7 @@
 package com.example.transactionmanagementsystem.api
 
 import com.example.transactionmanagementsystem.models.LoginRequest
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
@@ -10,7 +11,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.Headers
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 
 interface ApiInterface {
     @Headers("Content-Type:application/json")
@@ -19,6 +22,13 @@ interface ApiInterface {
 
     @POST("api/auth/token")
     fun checkToken(@Header("Authorization") token: String): Call<ResponseBody>
+
+    @Multipart
+    @POST("api/bill/upload")
+    fun uploadBill(
+        @Header("Authorization") token: String,
+        @Part file: MultipartBody.Part
+    ): Call<ResponseBody>
 }
 
 class RetrofitInstance {
