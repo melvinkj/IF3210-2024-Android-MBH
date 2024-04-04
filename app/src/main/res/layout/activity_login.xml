@@ -14,6 +14,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="165dp"
         android:text="Welcome!"
+        android:textStyle="bold"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textSize="30sp" />
 
@@ -23,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="245dp"
+        android:layout_marginTop="260dp"
         android:hint="Email"
         android:inputType="textEmailAddress" />
 
@@ -33,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="295dp"
+        android:layout_marginTop="315dp"
         android:hint="Password"
         android:inputType="textPassword" />
 
@@ -43,9 +44,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="380dp"
-        android:backgroundTint="#DCEFC1"
-        android:text="Login" />
-
+        android:layout_marginTop="435dp"
+        android:background="@drawable/login_button"
+        android:textAllCaps="false"
+        android:text="Login"  
+        android:textSize="18sp" />
 
 </RelativeLayout>
