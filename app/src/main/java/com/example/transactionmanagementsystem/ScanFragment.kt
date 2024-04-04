@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Service
 import android.content.ActivityNotFoundException
@@ -15,10 +16,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.location.Address
+import android.location.Geocoder
+import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
@@ -31,11 +37,18 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat.isLocationEnabled
+import androidx.navigation.findNavController
 import com.example.transactionmanagementsystem.api.ApiInterface
 import com.example.transactionmanagementsystem.api.RetrofitInstance
+import com.example.transactionmanagementsystem.databinding.FragmentAddTransactionBinding
+import com.example.transactionmanagementsystem.databinding.FragmentScanBinding
 import com.example.transactionmanagementsystem.models.Transaction
 import com.example.transactionmanagementsystem.viewmodel.TransactionViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 //import kotlinx.coroutines.DefaultExecutor.enqueue
 import okhttp3.MediaType
@@ -74,13 +87,25 @@ class   ScanFragment : Fragment() {
     private lateinit var viewFinder  : PreviewView
 
     private lateinit var transactionViewModel: TransactionViewModel
+    private var scanBinding: FragmentScanBinding? = null
+
+    private val binding get() = scanBinding!!
+
+    private lateinit var  scanView: View
+
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var mFusedLocationClient: FusedLocationProviderClient
+    private val permissionId = 2
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_scan, container, false)
+        scanBinding = FragmentScanBinding.inflate(inflater, container, false)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        return binding.root
+//        return inflater.inflate(R.layout.fragment_scan, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -88,6 +113,7 @@ class   ScanFragment : Fragment() {
 
         val captureButton = view.findViewById<FloatingActionButton>(R.id.captureButton)
         val pickImageButton = view.findViewById<Button>(R.id.pickImageButton)
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -192,9 +218,106 @@ class   ScanFragment : Fragment() {
         return tempFile
     }
 
+    @SuppressLint("MissingPermission", "SetTextI18n")
+    private fun getLocation(callback: (Boolean, String, Double, Double) -> Unit) {
+        var address: String = "ITB"
+        var latitude: Double = -6.8915
+        var longitude: Double = 107.6107
+        Log.d(TAG, "getLocation: asedekon sama lu semua")
+        if (!locationAccessPreviouslyDenied()) {
+            if (checkPermissions()) {
+                if (isLocationEnabled()) {
+                    mFusedLocationClient.lastLocation.addOnCompleteListener(requireActivity()) { task ->
+                        val location: Location? = task.result
+                        if (location != null) {
+                            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+                            val list: MutableList<Address>? =
+                                geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                            binding.apply {
+                                latitude = list?.get(0)?.latitude!!.toDouble()
+                                longitude = list?.get(0)?.longitude!!.toDouble()
+                                address = list?.get(0)?.getAddressLine(0).toString()
+                            }
+                            callback(true, address, latitude, longitude)
+                        } else {
+                            callback(false, address, latitude, longitude)
+                        }
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Please turn on location", Toast.LENGTH_LONG)
+                        .show()
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                    callback(false, address, latitude, longitude)
+                }
+            } else {
+                requestPermissions()
+                callback(false, address, latitude, longitude)
+            }
+        } else {
+            callback(true, address, latitude, longitude)
+        }
+    }
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager: LocationManager =
+            requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
+        )
+    }
+    private fun checkPermissions(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
+    }
+    private fun requestPermissions() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) ||
+            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+        ) {
+            // Show a rationale for why the permissions are needed
+            Toast.makeText(
+                requireContext(),
+                "Location permission is required for this feature",
+                Toast.LENGTH_LONG
+            ).show()
+        } else {
+            // Direct the user to app settings to enable permissions manually
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", requireActivity().packageName, null)
+            intent.data = uri
+            startActivity(intent)
+        }
+
+        // Request permissions regardless
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            permissionId
+        )
+    }
+
+    private fun locationAccessPreviouslyDenied(): Boolean {
+        val deniedPreviously = ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION )
+                && ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION )
+        return deniedPreviously
+    }
+
     private fun sendToServer(selectedImageUri: Uri){
         Toast.makeText(requireContext(), "Sending...", Toast.LENGTH_LONG).show()
-        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaW0iOiIxMzUyMTA3OSIsImlhdCI6MTcxMjIxMzUzOCwiZXhwIjoxNzEyMjEzODM4fQ.rog5Qy2hken2tns0lEygqL5NGEIUVUf6C5jylP4-dek"
+        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaW0iOiIxMzUyMTA3OSIsImlhdCI6MTcxMjI1ODM0OSwiZXhwIjoxNzEyMjU4NjQ5fQ.HKi85TKFknncbPAE8wHuAOF9fjtvze1u_JC1vqnP5H8"
 //        val token = requireActivity().getSharedPreferences("UserToken", Service.MODE_PRIVATE).getString("token", null)
         val files = uriToFile(selectedImageUri, requireContext())
         val requestFile = RequestBody.create(MediaType.parse("image/jpeg"), files)
@@ -211,8 +334,12 @@ class   ScanFragment : Fragment() {
             }
 
             override fun onResponse(call: Call<ResponseBody>, response: retrofit2.Response<ResponseBody>){
-                if(response.isSuccessful){
-                    Toast.makeText(requireContext(), "Success: ${response.code()}", Toast.LENGTH_SHORT).show()
+                if(response.isSuccessful) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Success: ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     val responseBody = response.body()?.string()
 
                     val jsonObject = JSONObject(responseBody)
@@ -221,7 +348,7 @@ class   ScanFragment : Fragment() {
 
                     var amount = 0.0
 
-                    for(i in 0 until itemsArray.length()){
+                    for (i in 0 until itemsArray.length()) {
                         val itemObject = itemsArray.getJSONObject(i)
                         val qty = itemObject.getInt("qty")
                         val price = itemObject.getDouble("price")
@@ -231,16 +358,37 @@ class   ScanFragment : Fragment() {
                     val date = Date()
                     val category = "EXPENSE"
                     val title = "Transaction " + date.toString()
-                    val latitude = -6.8915
-                    val longitude = 107.6107
-                    val address = "ITB"
+//                    val latitude = -6.8915
+//                    val longitude = 107.6107
+//                    val address = "ITB"
 
-                    transactionViewModel = (activity as MainActivity).transactionViewModel
+                    getLocation { success, address, latitude, longitude ->
 
-                    val newTransaction = Transaction(0, title, category, amount, date, address, latitude, longitude)
-                    transactionViewModel.addTransaction(newTransaction)
-                    Toast.makeText(requireContext(), "Transaction Saved!", Toast.LENGTH_SHORT).show()
+                        if (success) {
+                            transactionViewModel = (activity as MainActivity).transactionViewModel
 
+                            val newTransaction = Transaction(
+                                0,
+                                title,
+                                category,
+                                amount,
+                                date,
+                                address,
+                                latitude,
+                                longitude
+                            )
+                            transactionViewModel.addTransaction(newTransaction)
+                            Toast.makeText(
+                                requireContext(),
+                                "Transaction Saved!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                        } else {
+                            Toast.makeText(requireContext(), "GAGAL", Toast.LENGTH_SHORT).show()
+                        }
+
+                    }
                 }else if(response.code() == 401){
                     Toast.makeText(requireContext(), "need relogin", Toast.LENGTH_SHORT).show()
                 }
