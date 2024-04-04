@@ -15,5 +15,11 @@ class TransactionRepository(private val db: TransactionDatabase) {
     fun getTransactionsOrderedByLocation() = db.getTransactionDao().getTransactionsOrderedByLocation()
     fun getTransactionsOrderedByDate() = db.getTransactionDao().getTransactionsOrderedByDate()
     fun searchTransaction(query: String?) = db.getTransactionDao().searchTransaction(query)
+//    fun getExpenseTotalByUserId(userId: String) = db.getTransactionDao().getExpenseTotalByUserId(userId)
+//    fun getIncomeTotalByUserId(userId: String) = db.getTransactionDao().getIncomeTotalByUserId(userId)
+
+    fun getExpenseTotalByUserId() = db.getTransactionDao().getExpenseTotalByUserId()
+    fun getIncomeTotalByUserId() = db.getTransactionDao().getIncomeTotalByUserId()
+
 
 }

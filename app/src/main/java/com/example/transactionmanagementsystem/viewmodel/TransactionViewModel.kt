@@ -147,4 +147,9 @@ class TransactionViewModel (app: Application, private val transactionRepository:
     fun getTransactionsOrderedByDate() = transactionRepository.getTransactionsOrderedByDate()
 
     fun searchTransaction(query: String?) : Flow<List<Transaction>> = transactionRepository.searchTransaction(query)
+//    fun getExpenseTotalByUserId(userId:String) = transactionRepository.getExpenseTotalByUserId(userId)
+//    fun getIncomeTotalByUserId(userId: String) = transactionRepository.getIncomeTotalByUserId(userId)
+    fun getExpenseTotalByUserId() = transactionRepository.getExpenseTotalByUserId()
+    fun getIncomeTotalByUserId() = transactionRepository.getIncomeTotalByUserId()
+
 }
