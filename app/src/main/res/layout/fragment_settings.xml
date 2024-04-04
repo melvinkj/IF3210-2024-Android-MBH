@@ -30,13 +30,23 @@
         android:gravity="center"
         android:orientation="vertical">
 
+        <!-- Randomize Transaction -->
+        <Button
+            android:id="@+id/randomizeBtn"
+            android:layout_width="350dp"
+            android:layout_height="50sp"
+            android:text="Randomize Transaction"
+            android:textSize="20sp" />
+
         <!-- Save XLSX -->
         <Button
             android:id="@+id/save1Btn"
             android:layout_width="350dp"
             android:layout_height="50sp"
             android:text="Save As .xlsx"
-            android:textSize="26sp" />
+            android:textSize="20sp"
+            android:layout_marginTop="10dp" />
+
 
         <!-- Save XLS -->
         <Button
@@ -44,7 +54,7 @@
             android:layout_width="350dp"
             android:layout_height="50sp"
             android:text="Save As .xls"
-            android:textSize="26sp"
+            android:textSize="20sp"
             android:layout_marginTop="10dp" />
 
         <!-- Send Email -->
@@ -53,7 +63,7 @@
             android:layout_width="350dp"
             android:layout_height="50sp"
             android:text="Send Email"
-            android:textSize="26sp"
+            android:textSize="20sp"
             android:layout_marginTop="10dp" />
 
         <!-- Logout -->
@@ -62,7 +72,7 @@
             android:layout_width="350dp"
             android:layout_height="50sp"
             android:text="Logout"
-            android:textSize="26sp"
+            android:textSize="20sp"
             android:layout_marginTop="10dp" />
     </LinearLayout>
 

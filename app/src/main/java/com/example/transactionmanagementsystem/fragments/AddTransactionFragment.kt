@@ -39,6 +39,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
+import java.util.Random
 
 class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), MenuProvider {
 
@@ -51,6 +52,29 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private val permissionId = 2
+    private var launchSource: String? = null
+    companion object {
+        // Define a method to create a new instance of the fragment with the launch source argument
+        fun newInstance(source: String): AddTransactionFragment {
+            val fragment = AddTransactionFragment()
+            val args = Bundle().apply {
+                putString("launch_source", source)
+            }
+            fragment.arguments = args
+            return fragment
+        }
+    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Retrieve the launch source argument
+        launchSource = arguments?.getString("launch_source")
+    }
+
+    private fun randomize() {
+        val random = Random()
+        val value = (random.nextInt(1000) * 1000).toString()
+        binding.addTransactionAmount.setText(value)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -77,6 +101,10 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
 
         binding.buttonSave.setOnClickListener {
             saveTransaction()
+        }
+
+        if (launchSource == "broadcast") {
+            randomize()
         }
     }
 
