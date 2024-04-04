@@ -59,6 +59,7 @@ class TwibbonFragment : Fragment() {
 
         if (checkPermissions()) {
             twibbonImageView = view.findViewById(R.id.twibbonImageView)
+            twibbonImageView.visibility = View.GONE
             capturedImageView = requireView().findViewById<ImageView>(R.id.capturedImageView)
 
             val retakeButton = view.findViewById<ImageButton>(R.id.retakeButton)
@@ -209,6 +210,9 @@ class TwibbonFragment : Fragment() {
 
                     // Display the result bitmap in an ImageView
                     capturedImageView.setImageBitmap(resultBitmap)
+
+                    // Set the visibility of the twibbonImageView to VISIBLE
+                    twibbonImageView.visibility = View.VISIBLE
 
                     // Set the visibility of the capturedImageView to VISIBLE
                     capturedImageView.visibility = View.VISIBLE
