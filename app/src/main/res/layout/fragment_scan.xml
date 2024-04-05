@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ScanFragment">
+
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/viewFinder"
+        android:layout_width="match_parent"
+        android:layout_height="500dp" />
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/captureButton"
+        app:srcCompat="@drawable/baseline_photo_camera_24"
+        android:contentDescription="Capture Photo"
+        app:tint="#FFFFFF"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="26dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:drawableTint="#FFFFFF"
+        app:backgroundTint="#FF0000"
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/pickImageButton"
+        app:srcCompat="@drawable/baseline_photo_library_24"
+        android:contentDescription="Pick Image"
+        app:tint="#FFFFFF"
+        android:layout_marginLeft="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="26dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:drawableTint="#FFFFFF"
+        app:backgroundTint="#000000"
+        />
+
+
+</RelativeLayout>
