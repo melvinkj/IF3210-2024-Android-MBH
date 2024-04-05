@@ -94,7 +94,7 @@ class TwibbonFragment : Fragment() {
         } else {
             requestPermissions()
         }
-        activity?.title = "Twibbon"
+        activity?.title = "Capture Twibbon"
 
     }
 
