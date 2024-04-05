@@ -11,24 +11,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:background="#000000"
         android:gravity="center">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="50dp"
             android:text="Settings"
-            android:textColor="#FFFFFF"
-            android:textSize="25sp" />
+            android:textColor="@color/purple_700"
+            android:textStyle="bold"
+            android:textSize="30sp" />
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/feature"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/header"
+        android:paddingTop="20dp"
+        android:paddingBottom="30dp"
         android:gravity="center"
         android:orientation="vertical">
+
+        <!-- Randomize Transaction -->
+        <Button
+            android:id="@+id/randomizeBtn"
+            android:layout_width="350dp"
+            android:layout_height="50sp"
+            android:text="Randomize Transaction"
+            android:textSize="20sp" 
+            android:textAllCaps="false" 
+            android:paddingLeft="10dp"
+            android:textColor="@color/purple_700"
+            android:background="@android:color/transparent"
+            android:drawableLeft="@drawable/outline_shuffle_24"
+            android:gravity="left|center_vertical"
+            android:drawablePadding="30dp" />
 
         <!-- Save XLSX -->
         <Button
@@ -36,7 +57,15 @@
             android:layout_width="350dp"
             android:layout_height="50sp"
             android:text="Save As .xlsx"
-            android:textSize="26sp" />
+            android:textSize="20sp"
+            android:layout_marginTop="10dp" 
+            android:textAllCaps="false"
+            android:paddingLeft="10dp"
+            android:textColor="@color/purple_700"
+            android:background="@android:color/transparent"
+            android:drawableLeft="@drawable/outline_save_as_24"
+            android:gravity="left|center_vertical"
+            android:drawablePadding="30dp" />
 
         <!-- Save XLS -->
         <Button
@@ -44,8 +73,15 @@
             android:layout_width="350dp"
             android:layout_height="50sp"
             android:text="Save As .xls"
-            android:textSize="26sp"
-            android:layout_marginTop="10dp" />
+            android:textSize="20sp"
+            android:layout_marginTop="10dp" 
+            android:textAllCaps="false"
+            android:paddingLeft="10dp"
+            android:textColor="@color/purple_700"
+            android:background="@android:color/transparent"
+            android:drawableLeft="@drawable/outline_save_as_24"
+            android:gravity="left|center_vertical"
+            android:drawablePadding="30dp" />
 
         <!-- Send Email -->
         <Button
@@ -53,17 +89,31 @@
             android:layout_width="350dp"
             android:layout_height="50sp"
             android:text="Send Email"
-            android:textSize="26sp"
-            android:layout_marginTop="10dp" />
-
-        <!-- Logout -->
-        <Button
-            android:id="@+id/logout"
-            android:layout_width="350dp"
-            android:layout_height="50sp"
-            android:text="Logout"
-            android:textSize="26sp"
-            android:layout_marginTop="10dp" />
+            android:textSize="20sp"
+            android:layout_marginTop="10dp" 
+            android:textAllCaps="false"
+            android:paddingLeft="10dp"
+            android:textColor="@color/purple_700"
+            android:background="@android:color/transparent"
+            android:drawableLeft="@drawable/outline_email_24"
+            android:gravity="left|center_vertical"
+            android:drawablePadding="30dp" />
     </LinearLayout>
+
+    <!-- Logout -->
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/feature"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="45dp"
+        android:text="Logout"
+        android:textSize="22sp"
+        android:textAllCaps="false" 
+        android:textColor="@color/purple_700"
+        android:background="@android:color/transparent"
+        android:drawableTop="@drawable/outline_logout_24"
+        android:drawablePadding="15dp" />
 
 </RelativeLayout>

@@ -13,6 +13,10 @@
         android:title="Graph"
         android:icon="@drawable/baseline_pie_chart_24"/>
 
+    <item android:id="@+id/twibbon"
+        android:title="Twibbon"
+        android:icon="@drawable/baseline_photo_filter_24"/>
+
     <item android:id="@+id/settings"
         android:title="Settings"
         android:icon="@drawable/baseline_settings_24"/>
