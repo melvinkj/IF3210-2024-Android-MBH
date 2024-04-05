@@ -123,7 +123,7 @@ class SettingsFragment : Fragment() {
         logoutButton.setOnClickListener {
             logout()
         }
-        activity?.title = "Settings"
+        activity?.title = ""
     }
 
     companion object {
