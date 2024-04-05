@@ -41,6 +41,7 @@ import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat.isLocationEnabled
 import androidx.navigation.findNavController
+import com.example.transactionmanagementsystem.SettingsFragment.Companion.PICK_IMAGE_REQUEST
 import com.example.transactionmanagementsystem.api.ApiInterface
 import com.example.transactionmanagementsystem.api.RetrofitInstance
 import com.example.transactionmanagementsystem.databinding.FragmentAddTransactionBinding
@@ -93,6 +94,8 @@ class   ScanFragment : Fragment() {
 
     private lateinit var  scanView: View
 
+    private var cameraStarted = false
+
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private val permissionId = 2
@@ -111,28 +114,24 @@ class   ScanFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if(checkPermissionsCamera()){
-            val captureButton = view.findViewById<FloatingActionButton>(R.id.captureButton)
-            val pickImageButton = view.findViewById<FloatingActionButton>(R.id.pickImageButton)
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        val captureButton = view.findViewById<FloatingActionButton>(R.id.captureButton)
+        val pickImageButton = view.findViewById<FloatingActionButton>(R.id.pickImageButton)
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-            outputDirectory = getOutputDirectory()
-            cameraExecutor = Executors.newSingleThreadExecutor()
+        outputDirectory = getOutputDirectory()
+        cameraExecutor = Executors.newSingleThreadExecutor()
 
-            if (allPermissionsGranted()) {
-                startCamera()
-            } else {
-                ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    REQUIRED_PERMISSIONS,
-                    REQUEST_CAMERA_PERMISSIONS
-                )
-            }
-            captureButton.setOnClickListener { takePhoto() }
-            pickImageButton.setOnClickListener { openGallery() }
-        }else{
-            requestPermissionsCamera()
+        if (allPermissionsGranted()) {
+            startCamera()
+        } else {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                REQUIRED_PERMISSIONS,
+                REQUEST_CAMERA_PERMISSIONS
+            )
         }
+        captureButton.setOnClickListener { takePhoto() }
+        pickImageButton.setOnClickListener { openGallery() }
 
         activity?.title = "Scan"
 
@@ -164,6 +163,7 @@ class   ScanFragment : Fragment() {
                 try {
                     cameraProvider.unbindAll()
                     cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+                    cameraStarted = true
                 } catch (exc: Exception) {
                     Log.e(TAG, "Use case binding failed", exc)
                 }
@@ -183,33 +183,38 @@ class   ScanFragment : Fragment() {
 
     private fun takePhoto() {
         // Create a timestamped output file
-        val photoFile = File(
-            outputDirectory,
-            SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US)
-                .format(System.currentTimeMillis()) + ".jpg"
-        )
-        // Set up the output options for ImageCapture
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+        if(cameraStarted){
+            val photoFile = File(
+                outputDirectory,
+                SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US)
+                    .format(System.currentTimeMillis()) + ".jpg"
+            )
+            // Set up the output options for ImageCapture
+            val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
-        // Capture the photo
-        imageCapture.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(requireContext()),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val savedUri = Uri.fromFile(photoFile)
-                    Toast.makeText(requireContext(), "Photo Captured", Toast.LENGTH_SHORT).show()
-                    sendToServer(savedUri)
-                    Log.d(TAG, "Photo saved: $savedUri")
+            // Capture the photo
+            imageCapture.takePicture(
+                outputOptions,
+                ContextCompat.getMainExecutor(requireContext()),
+                object : ImageCapture.OnImageSavedCallback {
+                    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                        val savedUri = Uri.fromFile(photoFile)
+                        Toast.makeText(requireContext(), "Photo Captured", Toast.LENGTH_SHORT).show()
+                        sendToServer(savedUri)
+                        Log.d(TAG, "Photo saved: $savedUri")
 
+                    }
+
+                    override fun onError(exception: ImageCaptureException) {
+                        Log.e(TAG, "Error capturing photo: ${exception.message}", exception)
+                        // Handle the error (e.g., show an error message)
+                    }
                 }
+            )
+        }else{
+            startCamera()
+        }
 
-                override fun onError(exception: ImageCaptureException) {
-                    Log.e(TAG, "Error capturing photo: ${exception.message}", exception)
-                    // Handle the error (e.g., show an error message)
-                }
-            }
-        )
     }
 
     private fun openGallery(){
