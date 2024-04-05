@@ -35,6 +35,9 @@ import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
+import java.io.File
 
 class SettingsFragment : Fragment() {
 
