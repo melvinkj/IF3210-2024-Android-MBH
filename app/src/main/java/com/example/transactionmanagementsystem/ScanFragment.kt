@@ -111,24 +111,29 @@ class   ScanFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val captureButton = view.findViewById<FloatingActionButton>(R.id.captureButton)
-        val pickImageButton = view.findViewById<FloatingActionButton>(R.id.pickImageButton)
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        if(checkPermissionsCamera()){
+            val captureButton = view.findViewById<FloatingActionButton>(R.id.captureButton)
+            val pickImageButton = view.findViewById<FloatingActionButton>(R.id.pickImageButton)
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        outputDirectory = getOutputDirectory()
-        cameraExecutor = Executors.newSingleThreadExecutor()
+            outputDirectory = getOutputDirectory()
+            cameraExecutor = Executors.newSingleThreadExecutor()
 
-        if (allPermissionsGranted()) {
-            startCamera()
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                REQUIRED_PERMISSIONS,
-                REQUEST_CAMERA_PERMISSIONS
-            )
+            if (allPermissionsGranted()) {
+                startCamera()
+            } else {
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    REQUIRED_PERMISSIONS,
+                    REQUEST_CAMERA_PERMISSIONS
+                )
+            }
+            captureButton.setOnClickListener { takePhoto() }
+            pickImageButton.setOnClickListener { openGallery() }
+        }else{
+            requestPermissionsCamera()
         }
-        captureButton.setOnClickListener { takePhoto() }
-        pickImageButton.setOnClickListener { openGallery() }
+
         activity?.title = "Scan"
 
     }
@@ -310,6 +315,37 @@ class   ScanFragment : Fragment() {
         )
     }
 
+    private fun checkPermissionsCamera(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            requireActivity(),
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestPermissionsCamera() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+            // Show a rationale for why the permissions are needed
+            Toast.makeText(
+                requireContext(),
+                "Camera permission is required for this feature",
+                Toast.LENGTH_LONG
+            ).show()
+        } else {
+            // Direct the user to app settings to enable permissions manually
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", requireActivity().packageName, null)
+            intent.data = uri
+            startActivity(intent)
+        }
+
+        // Request permissions regardless
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(Manifest.permission.CAMERA),
+            permissionId
+        )
+    }
+
     private fun locationAccessPreviouslyDenied(): Boolean {
         val deniedPreviously = ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION )
                 && ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION )
@@ -337,7 +373,7 @@ class   ScanFragment : Fragment() {
                 if(response.isSuccessful) {
                     Toast.makeText(
                         requireContext(),
-                        "Success: ${response.code()}",
+                        "Success Sending Image",
                         Toast.LENGTH_SHORT
                     ).show()
                     val responseBody = response.body()?.string()
@@ -358,9 +394,6 @@ class   ScanFragment : Fragment() {
                     val date = Date()
                     val category = "EXPENSE"
                     val title = "Transaction " + date.toString()
-//                    val latitude = -6.8915
-//                    val longitude = 107.6107
-//                    val address = "ITB"
 
                     getLocation { success, address, latitude, longitude ->
 
@@ -385,12 +418,12 @@ class   ScanFragment : Fragment() {
                             ).show()
 
                         } else {
-                            Toast.makeText(requireContext(), "GAGAL", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), "Failed Sending To Server!", Toast.LENGTH_SHORT).show()
                         }
 
                     }
                 }else if(response.code() == 401){
-                    Toast.makeText(requireContext(), "need relogin", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Session Expired! Relogin", Toast.LENGTH_SHORT).show()
                 }
                 else{
                     Toast.makeText(requireContext(), "Failed: ${response.code()}", Toast.LENGTH_SHORT).show()
