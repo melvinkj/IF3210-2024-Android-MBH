@@ -9,6 +9,7 @@
         android:id="@+id/addTransactionCategory"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:layout_marginTop="40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -19,6 +20,7 @@
         android:id="@+id/addTransactionTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:layout_marginTop="40dp"
         android:hint="Title"
         android:inputType="text"
@@ -27,12 +29,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/addTransactionCategory" />
 
-
-
     <EditText
         android:id="@+id/addTransactionAmount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:layout_marginTop="40dp"
         android:hint="Amount"
         android:inputType="numberDecimal"
@@ -47,6 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:text="Save"
+        android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
