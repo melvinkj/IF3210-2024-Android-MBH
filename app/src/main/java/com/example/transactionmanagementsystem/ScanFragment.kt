@@ -317,8 +317,7 @@ class   ScanFragment : Fragment() {
 
     private fun sendToServer(selectedImageUri: Uri){
         Toast.makeText(requireContext(), "Sending...", Toast.LENGTH_LONG).show()
-        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaW0iOiIxMzUyMTA3OSIsImlhdCI6MTcxMjI1ODM0OSwiZXhwIjoxNzEyMjU4NjQ5fQ.HKi85TKFknncbPAE8wHuAOF9fjtvze1u_JC1vqnP5H8"
-//        val token = requireActivity().getSharedPreferences("UserToken", Service.MODE_PRIVATE).getString("token", null)
+        val token = requireActivity().getSharedPreferences("UserToken", Service.MODE_PRIVATE).getString("token", null)
         val files = uriToFile(selectedImageUri, requireContext())
         val requestFile = RequestBody.create(MediaType.parse("image/jpeg"), files)
         val file = MultipartBody.Part.createFormData("file", files?.name, requestFile)
