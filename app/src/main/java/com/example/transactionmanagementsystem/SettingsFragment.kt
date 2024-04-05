@@ -37,6 +37,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import java.io.File
 
 class SettingsFragment : Fragment() {
@@ -80,7 +81,7 @@ class SettingsFragment : Fragment() {
 //            startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
             CoroutineScope(Dispatchers.Main).launch {
                 withContext(Dispatchers.Main){
-                    createAndSaveExcelFile(transactions, "xlsx")
+                    createAndSaveXLSXFile(transactions)
                 }
             }
             Toast.makeText(requireContext(), "Exporting Excel...", Toast.LENGTH_LONG).show()
@@ -98,7 +99,7 @@ class SettingsFragment : Fragment() {
 //            startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
             CoroutineScope(Dispatchers.IO).launch {
                 withContext(Dispatchers.IO){
-                    createAndSaveExcelFile(transactions, "xls")
+                    createAndSaveXLSFile(transactions)
                 }
             }
             Toast.makeText(requireContext(), "Exporting Excel...", Toast.LENGTH_LONG).show()
@@ -110,7 +111,7 @@ class SettingsFragment : Fragment() {
         sendButton.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 withContext(Dispatchers.IO){
-                    createAndSaveExcelFile(transactions, "xlsx")
+                    createAndSaveXLSXFile(transactions)
                 }
             }
             Toast.makeText(requireContext(), "Exporting Excel...", Toast.LENGTH_LONG).show()
@@ -131,7 +132,7 @@ class SettingsFragment : Fragment() {
         const val PICK_FILE_REQUEST_CODE = 3
     }
 
-    private suspend fun createAndSaveExcelFile(transactions: Flow<List<Transaction>>, format: String) {
+    private suspend fun createAndSaveXLSXFile(transactions: Flow<List<Transaction>>) {
 
         withContext(Dispatchers.IO){
             val workbook = XSSFWorkbook()
@@ -164,7 +165,49 @@ class SettingsFragment : Fragment() {
                 val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                 val datetime =  currentDateTime.format(formatter)
 
-                val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Transactions$datetime.$format" )
+                val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Transactions$datetime.xlsx" )
+                val fileOutputStream = FileOutputStream(file)
+                workbook.write(fileOutputStream)
+                fileOutputStream.close()
+                Log.d("Excel", "Excel file saved successfully at: ${file.absolutePath}")
+            }
+        }
+    }
+
+    private suspend fun createAndSaveXLSFile(transactions: Flow<List<Transaction>>,) {
+
+        withContext(Dispatchers.IO){
+            val workbook = HSSFWorkbook()
+
+            // Create a blank sheet
+            val sheet = workbook.createSheet("Transactions")
+
+            // Create some data rows
+            val headerRow = sheet.createRow(0)
+            headerRow.createCell(0).setCellValue("Date")
+            headerRow.createCell(1).setCellValue("Transaction Name")
+            headerRow.createCell(2).setCellValue("Category")
+            headerRow.createCell(3).setCellValue("Amount")
+            headerRow.createCell(4).setCellValue("Address")
+            headerRow.createCell(5).setCellValue("Latitude")
+            headerRow.createCell(6).setCellValue("Longitude")
+            convertFlowToList{listTransaction ->
+                listTransaction.forEachIndexed(){ index, transaction ->
+                    val row : Row = sheet.createRow(index+1)
+                    row.createCell(0).setCellValue(transaction.date.toString())
+                    row.createCell(1).setCellValue(transaction.title.toString())
+                    row.createCell(2).setCellValue(transaction.category.toString())
+                    row.createCell(3).setCellValue(transaction.amount.toDouble())
+                    row.createCell(4).setCellValue(transaction.address.toString())
+                    row.createCell(5).setCellValue(transaction.latitude.toString())
+                    row.createCell(6).setCellValue(transaction.longitude.toString())
+
+                }
+                val currentDateTime = LocalDateTime.now()
+                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                val datetime =  currentDateTime.format(formatter)
+
+                val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Transactions$datetime.xls" )
                 val fileOutputStream = FileOutputStream(file)
                 workbook.write(fileOutputStream)
                 fileOutputStream.close()
