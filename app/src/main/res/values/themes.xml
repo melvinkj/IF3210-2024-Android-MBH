@@ -16,6 +16,11 @@
     <style name="MyActionBar" parent="Widget.AppCompat.Light.ActionBar">
         <!-- Set the background color of the action bar to white -->
         <item name="background">@color/white</item>
+        <item name="titleTextStyle">@style/ActionBarTitleText</item>
+    </style>
+
+    <style name="ActionBarTitleText" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="ButtonStyle" parent="Widget.AppCompat.Button">
