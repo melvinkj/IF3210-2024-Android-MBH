@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SettingsFragment">
+    tools:context=".SettingsFragment" >
 
     <!-- Header aligned to the top -->
     <RelativeLayout
@@ -39,6 +39,7 @@
         <!-- Randomize Transaction -->
         <Button
             android:id="@+id/randomizeBtn"
+            style="@style/ButtonStyle"
             android:layout_width="350dp"
             android:layout_height="50sp"
             android:text="Randomize Transaction"
@@ -46,7 +47,6 @@
             android:textAllCaps="false" 
             android:paddingLeft="20dp"
             android:textColor="#FFFFFF"
-            android:background="@drawable/button_template"
             android:drawableLeft="@drawable/outline_shuffle_24"
             android:gravity="left|center_vertical"
             android:drawablePadding="30dp" />
@@ -54,6 +54,7 @@
         <!-- Save XLSX -->
         <Button
             android:id="@+id/save1Btn"
+            style="@style/ButtonStyle"
             android:layout_width="350dp"
             android:layout_height="50sp"
             android:text="Save As .xlsx"
@@ -62,7 +63,6 @@
             android:textAllCaps="false"
             android:paddingLeft="20dp"
             android:textColor="#FFFFFF"
-            android:background="@drawable/button_template"
             android:drawableLeft="@drawable/outline_save_as_24"
             android:gravity="left|center_vertical"
             android:drawablePadding="30dp" />
@@ -70,6 +70,7 @@
         <!-- Save XLS -->
         <Button
             android:id="@+id/save2Btn"
+            style="@style/ButtonStyle"
             android:layout_width="350dp"
             android:layout_height="50sp"
             android:text="Save As .xls"
@@ -78,7 +79,6 @@
             android:textAllCaps="false"
             android:paddingLeft="20dp"
             android:textColor="#FFFFFF"
-            android:background="@drawable/button_template"
             android:drawableLeft="@drawable/outline_save_as_24"
             android:gravity="left|center_vertical"
             android:drawablePadding="30dp" />
@@ -86,6 +86,7 @@
         <!-- Send Email -->
         <Button
             android:id="@+id/sendBtn"
+            style="@style/ButtonStyle"
             android:layout_width="350dp"
             android:layout_height="50sp"
             android:text="Send Email"
@@ -94,7 +95,6 @@
             android:textAllCaps="false"
             android:paddingLeft="20dp"
             android:textColor="#FFFFFF"
-            android:background="@drawable/button_template"
             android:drawableLeft="@drawable/outline_email_24"
             android:gravity="left|center_vertical"
             android:drawablePadding="30dp" />
@@ -103,6 +103,7 @@
     <!-- Logout -->
     <Button
         android:id="@+id/logout"
+        style="@style/ButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/feature"
