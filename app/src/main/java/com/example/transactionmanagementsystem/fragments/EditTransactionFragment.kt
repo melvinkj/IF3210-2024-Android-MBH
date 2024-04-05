@@ -71,12 +71,9 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         val categoryOptions = arrayOf("Income", "Expense")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categoryOptions)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.editTransactionCategory.adapter = adapter
 
         binding.editTransactionTitle.setText(currentTransaction.title)
-        val selectedCategoryIndex = categoryOptions.indexOf(currentTransaction.category)
-
-        binding.editTransactionCategory.setSelection(selectedCategoryIndex)
+        binding.editTransactionCategory.setText(currentTransaction.category.substring(0, 1).uppercase() + currentTransaction.category.substring(1).lowercase())
         val amountString = String.format("%.0f", currentTransaction.amount)
         binding.editTransactionAmount.setText(amountString)
         binding.editTransactionDate.setText(dateFormat.format(currentTransaction.date))
@@ -103,7 +100,7 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
 
     private fun saveTransaction(view: View){
         val transactionTitle = binding.editTransactionTitle.text.toString().trim()
-        val transactionCategory = binding.editTransactionCategory.selectedItem.toString().trim().uppercase()
+        val transactionCategory = currentTransaction.category
         val transactionAmountStr = binding.editTransactionAmount.text.toString().trim()
         val address = binding.editTransactionAddress.text.toString().trim()
         var transactionAmount: Double? = null
