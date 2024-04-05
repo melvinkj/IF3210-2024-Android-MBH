@@ -1,29 +1,30 @@
 package com.example.transactionmanagementsystem
 
 // For dummy transaction
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.transactionmanagementsystem.models.Transaction
 import com.example.transactionmanagementsystem.viewmodel.TransactionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.poi.ss.usermodel.Row
@@ -31,6 +32,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 // TODO: Rename parameter arguments, choose names that match
@@ -65,40 +68,55 @@ class SettingsFragment : Fragment() {
         transactionViewModel = (activity as MainActivity).transactionViewModel
         // Set OnClickListener on the button
 
+        val transactions = transactionViewModel.getTransactionsOrderedById()
+
         // Save as XLSX file
         saveXlsxButton.setOnClickListener {
-            val format = ".xlsx"
-            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                putExtra(Intent.EXTRA_TITLE, "transactions$format")
+//            val format = ".xlsx"
+//            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+//                addCategory(Intent.CATEGORY_OPENABLE)
+//                type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+//                putExtra(Intent.EXTRA_TITLE, "transactions$format")
+//            }
+//            startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
+            CoroutineScope(Dispatchers.Main).launch {
+                withContext(Dispatchers.Main){
+                    createAndSaveExcelFile(transactions, "xlsx")
+                }
             }
-            startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
+            Toast.makeText(requireContext(), "Exporting Excel...", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Excel Saved to Downloads!", Toast.LENGTH_SHORT).show()
         }
 
         // Save as XLS file
         saveXlsButton.setOnClickListener {
-            val format = ".xls"
-            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/vnd.ms-excel"
-                putExtra(Intent.EXTRA_TITLE, "transactions$format")
+//            val format = ".xls"
+//            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+//                addCategory(Intent.CATEGORY_OPENABLE)
+//                type = "application/vnd.ms-excel"
+//                putExtra(Intent.EXTRA_TITLE, "transactions$format")
+//            }
+//            startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
+            CoroutineScope(Dispatchers.IO).launch {
+                withContext(Dispatchers.IO){
+                    createAndSaveExcelFile(transactions, "xls")
+                }
             }
-            startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
+            Toast.makeText(requireContext(), "Exporting Excel...", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Excel Saved to Downloads!", Toast.LENGTH_SHORT).show()
+
         }
 
         // Send Email
         sendButton.setOnClickListener {
-            // Perform your task here when the button is clicked
-            CoroutineScope(Dispatchers.Main).launch {
-                val transactions = transactionViewModel.getTransactionsOrderedById()
-                withContext(Dispatchers.Main) {
-                    createAndSaveExcelFile(transactions)
+            CoroutineScope(Dispatchers.IO).launch {
+                withContext(Dispatchers.IO){
+                    createAndSaveExcelFile(transactions, "xlsx")
                 }
-
             }
-            Toast.makeText(requireContext(), "Saving Excel...", Toast.LENGTH_LONG).show()
-            Toast.makeText(requireContext(), "File Saved", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Exporting Excel...", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Excel Saved!", Toast.LENGTH_SHORT).show()
+            pickFile()
         }
 
         // Logout
@@ -109,20 +127,11 @@ class SettingsFragment : Fragment() {
 
     companion object {
         const val CREATE_FILE_REQUEST_CODE = 1
+        const val PICK_IMAGE_REQUEST = 2
+        const val PICK_FILE_REQUEST_CODE = 3
     }
 
-//     Dummy transactions for saving file
-    fun getDummyTransactions(): List<Transaction> {
-        // Replace with your own dummy data
-        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val date = format.parse("2023-08-01")
-
-        return listOf(
-            Transaction(1, "Banana", "Fruit", 10000.0, date, "", 20.0, 10.0),
-            Transaction(2, "Carrot", "Veggies", 5000.0, date, "", 20.0, 10.0)
-        )
-    }
-    private suspend fun createAndSaveExcelFile(transactions: Flow<List<Transaction>>) {
+    private suspend fun createAndSaveExcelFile(transactions: Flow<List<Transaction>>, format: String) {
 
         withContext(Dispatchers.IO){
             val workbook = XSSFWorkbook()
@@ -151,7 +160,11 @@ class SettingsFragment : Fragment() {
                     row.createCell(6).setCellValue(transaction.longitude.toString())
 
                 }
-                val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "kontolodon.xlsx")
+                val currentDateTime = LocalDateTime.now()
+                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                val datetime =  currentDateTime.format(formatter)
+
+                val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Transactions$datetime.$format" )
                 val fileOutputStream = FileOutputStream(file)
                 workbook.write(fileOutputStream)
                 fileOutputStream.close()
@@ -206,24 +219,33 @@ class SettingsFragment : Fragment() {
     }
 
     // Send email function
-    protected fun sendEmail() {
+    @SuppressLint("IntentReset")
+    protected fun sendEmail(uri: Uri) {
         val address = "13521052@std.stei.itb.ac.id"
         val subject = "Test Subject"
         val message = "Test Message"
 
-        val intent = Intent(Intent.ACTION_SENDTO).apply{
-            data = Uri.parse("mailto:$address")
-            putExtra(Intent.EXTRA_EMAIL, arrayOf(address))
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, message)
-        }
+        val email = Intent(Intent.ACTION_SEND)
+        email.type = "application/octet-stream"
+        email.data = Uri.parse("mailto:$address")
+        email.putExtra(Intent.EXTRA_SUBJECT, subject)
+        email.putExtra(Intent.EXTRA_TEXT, message)
+        email.putExtra(Intent.EXTRA_STREAM, uri)
+        requireContext().startActivity(Intent.createChooser(email, "choose"))
 
-        if(intent.resolveActivity(requireActivity().packageManager) != null){
-            startActivity(intent)
-        }else{
-            println(intent.resolveActivity(requireActivity().packageManager) != null)
-            Toast.makeText( requireContext(),"Required App is not installed", Toast.LENGTH_SHORT).show()
+    }
+    private fun openGallery(){
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        intent.type = "image/*"
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+    }
+    private fun pickFile() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*" // Set the MIME type to specify the type of file you want to pick
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false) // Set to true to allow picking multiple files
         }
+        startActivityForResult(intent, PICK_FILE_REQUEST_CODE)
     }
 
     private fun logout() {
@@ -243,18 +265,22 @@ class SettingsFragment : Fragment() {
         activity?.finish()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null){
+            val selectedImageUri = data.data!!
+            sendEmail(selectedImageUri)
+        }
 
-    // For triggering the saveFile function
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//        if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-//            val transactions : List<Transaction> = convertFlowToList(transactionViewModel.getTransactionsOrderedById())
-//            data?.data?.also { uri ->
-//                lifecycleScope.launch {
-//                    saveFile(transactions, uri)
-//                }
-//            }
-//        }
-//    }
+        if (requestCode == PICK_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // File picked successfully
+            val uri = data?.data
+            if(uri != null){
+                sendEmail(uri)
+            }else{
+                Toast.makeText(requireContext(), "Pick the file you want to attach on your email!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
 }
