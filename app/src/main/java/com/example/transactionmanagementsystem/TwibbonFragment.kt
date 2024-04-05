@@ -92,6 +92,8 @@ class TwibbonFragment : Fragment() {
         } else {
             requestPermissions()
         }
+        activity?.title = "Twibbon"
+
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {

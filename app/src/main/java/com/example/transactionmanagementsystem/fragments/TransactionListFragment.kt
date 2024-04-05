@@ -50,6 +50,7 @@ class TransactionListFragment : Fragment(R.layout.fragment_transaction_list), Se
         binding.addTransactionFAB.setOnClickListener {
             it.findNavController().navigate(R.id.action_navbarFragment_to_addTransactionFragment2)
         }
+        activity?.title = "Transaction List"
     }
 
     private fun updateUI(transaction: List<Transaction>?) {

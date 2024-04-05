@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.TransactionManagementSystem" parent="android:Theme.Material.Light.NoActionBar" />
-    <style name="Theme.TransactionManagementSystem." parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_700</item> <!-- Action bar -->
-        <item name="colorPrimaryVariant">@color/purple_700</item> <!-- Status bar -->
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/purple_700</item>
-        <item name="colorSecondaryVariant">@color/purple_700</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
+        <!-- Customize the status bar color to white -->
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item> <!-- This makes the status bar text color black -->
+        <!-- Customize the action bar color to white -->
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowActionBar">true</item>
+        <item name="actionBarStyle">@style/MyActionBar</item> <!-- Update action bar style here -->
+        <!-- Customize the action bar text color to black -->
+        <item name="actionMenuTextColor">@color/black</item>
     </style>
+
+    <style name="MyActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <!-- Set the background color of the action bar to white -->
+        <item name="background">@color/white</item>
+    </style>
+
 </resources>

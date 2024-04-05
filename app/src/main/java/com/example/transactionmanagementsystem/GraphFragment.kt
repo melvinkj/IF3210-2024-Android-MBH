@@ -39,6 +39,7 @@ class GraphFragment : Fragment(R.layout.fragment_graph) {
         chart = binding.pieChart
 
         configChartView()
+        activity?.title = "Graph"
     }
 
     private fun configChartView() {

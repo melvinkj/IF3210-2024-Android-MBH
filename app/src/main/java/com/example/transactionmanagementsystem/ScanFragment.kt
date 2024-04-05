@@ -129,6 +129,7 @@ class   ScanFragment : Fragment() {
         }
         captureButton.setOnClickListener { takePhoto() }
         pickImageButton.setOnClickListener { openGallery() }
+        activity?.title = "Scan"
 
     }
 

@@ -98,7 +98,7 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
         binding.editTransactionAddress.setOnClickListener {
             openGoogleMaps()
         }
-
+        activity?.title = "Edit Transaction"
     }
 
     private fun saveTransaction(view: View){

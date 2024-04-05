@@ -106,6 +106,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
         if (launchSource == "broadcast") {
             randomize()
         }
+        activity?.title = "Add Transaction"
     }
 
     private fun areAllFieldsFilled(transactionTitle: String, transactionCategory: String, transactionAmountStr: String): Boolean {
