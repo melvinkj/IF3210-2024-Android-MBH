@@ -51,7 +51,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
-    private val permissionId = 2
+    private val permissionId = 3
     private var launchSource: String? = null
     companion object {
         // Define a method to create a new instance of the fragment with the launch source argument
@@ -133,31 +133,32 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
         getLocation { success, address, latitude, longitude ->
             if (success) {
                 // Location fetched successfully, proceed with saving the transaction
-                val transactionTitle = binding.addTransactionTitle.text.toString().trim()
-                val transactionCategory = binding.addTransactionCategory.selectedItem.toString().trim().uppercase()
-                val transactionAmountStr = binding.addTransactionAmount.text.toString().trim()
-                val transactionDate = Date()
 
-                if (areAllFieldsFilled(transactionTitle, transactionCategory, transactionAmountStr)) {
-                    val transaction = Transaction(
-                        0,
-                        transactionTitle,
-                        transactionCategory,
-                        transactionAmountStr.toDouble(),
-                        transactionDate,
-                        address,
-                        latitude,
-                        longitude
-                    )
-                    transactionViewModel.addTransaction(transaction)
-
-                    Toast.makeText(addTransactionView.context, "Transaction saved", Toast.LENGTH_SHORT)
-                        .show()
-                    addTransactionView.findNavController().popBackStack(R.id.navbarFragment, false)
-                }
             } else {
                 // Failed to fetch location, handle accordingly
-                Toast.makeText(requireContext(), "Failed to fetch location", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Failed to fetch location, will use default value", Toast.LENGTH_SHORT).show()
+            }
+            val transactionTitle = binding.addTransactionTitle.text.toString().trim()
+            val transactionCategory = binding.addTransactionCategory.selectedItem.toString().trim().uppercase()
+            val transactionAmountStr = binding.addTransactionAmount.text.toString().trim()
+            val transactionDate = Date()
+
+            if (areAllFieldsFilled(transactionTitle, transactionCategory, transactionAmountStr)) {
+                val transaction = Transaction(
+                    0,
+                    transactionTitle,
+                    transactionCategory,
+                    transactionAmountStr.toDouble(),
+                    transactionDate,
+                    address,
+                    latitude,
+                    longitude
+                )
+                transactionViewModel.addTransaction(transaction)
+
+                Toast.makeText(addTransactionView.context, "Transaction saved", Toast.LENGTH_SHORT)
+                    .show()
+                addTransactionView.findNavController().popBackStack(R.id.navbarFragment, false)
             }
         }
     }
@@ -207,8 +208,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction), Menu
                         }
                     }
                 } else {
-                    Toast.makeText(requireContext(), "Please turn on location", Toast.LENGTH_LONG)
-                        .show()
+                    Toast.makeText(requireContext(), "Please turn on location", Toast.LENGTH_LONG).show()
                     val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                     startActivity(intent)
                     callback(false, address, latitude, longitude)

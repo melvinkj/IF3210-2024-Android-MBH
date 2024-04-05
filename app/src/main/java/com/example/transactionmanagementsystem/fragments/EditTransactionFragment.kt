@@ -46,7 +46,7 @@ class EditTransactionFragment : Fragment(R.layout.fragment_edit_transaction), Me
     private lateinit var transactionViewModel: TransactionViewModel
     private lateinit var  currentTransaction: Transaction
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
-    private val permissionId = 2
+    private val permissionId = 3
 
     private val args: EditTransactionFragmentArgs by navArgs()
     override fun onCreateView(

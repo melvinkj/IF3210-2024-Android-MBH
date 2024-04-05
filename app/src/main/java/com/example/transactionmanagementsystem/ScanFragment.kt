@@ -98,7 +98,8 @@ class   ScanFragment : Fragment() {
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
-    private val permissionId = 2
+    private val permissionIdCamera = 2
+    private val permissionIdLocation = 3
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -323,7 +324,7 @@ class   ScanFragment : Fragment() {
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ),
-            permissionId
+            permissionIdLocation
         )
     }
 
@@ -354,7 +355,7 @@ class   ScanFragment : Fragment() {
         ActivityCompat.requestPermissions(
             requireActivity(),
             arrayOf(Manifest.permission.CAMERA),
-            permissionId
+            permissionIdCamera
         )
     }
 
