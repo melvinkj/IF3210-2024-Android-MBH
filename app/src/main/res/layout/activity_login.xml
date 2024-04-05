@@ -48,6 +48,7 @@
         android:background="@drawable/button_template"
         android:textAllCaps="false"
         android:text="Login"  
+        android:textColor="#FFFFFF"
         android:textSize="18sp" />
 
 </RelativeLayout>
