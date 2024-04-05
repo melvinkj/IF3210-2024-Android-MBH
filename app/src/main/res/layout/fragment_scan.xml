@@ -16,6 +16,7 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/captureButton"
         app:srcCompat="@drawable/baseline_photo_camera_24"
+        android:contentDescription="Capture Photo"
         app:tint="#FFFFFF"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
@@ -29,6 +30,7 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/pickImageButton"
         app:srcCompat="@drawable/baseline_photo_library_24"
+        android:contentDescription="Pick Image"
         app:tint="#FFFFFF"
         android:layout_marginLeft="40dp"
         android:layout_alignParentBottom="true"

@@ -134,7 +134,7 @@ class   ScanFragment : Fragment() {
         captureButton.setOnClickListener { takePhoto() }
         pickImageButton.setOnClickListener { openGallery() }
 
-        activity?.title = "Scan"
+        activity?.title = "Scan Transaction"
 
     }
 
@@ -170,6 +170,7 @@ class   ScanFragment : Fragment() {
                 }
             }, ContextCompat.getMainExecutor(requireContext()))
         }else{
+            Toast.makeText(requireContext(), "Please turn on camera permission!", Toast.LENGTH_SHORT).show()
             requestPermissionsCamera()
         }
 
@@ -408,10 +409,9 @@ class   ScanFragment : Fragment() {
                     val title = "Transaction " + date.toString()
 
                     getLocation { success, address, latitude, longitude ->
+                        transactionViewModel = (activity as MainActivity).transactionViewModel
 
                         if (success) {
-                            transactionViewModel = (activity as MainActivity).transactionViewModel
-
                             val newTransaction = Transaction(
                                 0,
                                 title,
@@ -430,7 +430,22 @@ class   ScanFragment : Fragment() {
                             ).show()
 
                         } else {
-                            Toast.makeText(requireContext(), "Failed Sending To Server!", Toast.LENGTH_SHORT).show()
+                            val newTransaction = Transaction(
+                                0,
+                                title,
+                                category,
+                                amount,
+                                date,
+                                address,
+                                latitude,
+                                longitude
+                            )
+                            transactionViewModel.addTransaction(newTransaction)
+                            Toast.makeText(
+                                requireContext(),
+                                "Transaction Saved, but with default location",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
 
                     }
