@@ -220,9 +220,9 @@ class SettingsFragment : Fragment() {
     // Send email function
     @SuppressLint("IntentReset")
     protected fun sendEmail(uri: Uri) {
-        val address = "13521052@std.stei.itb.ac.id"
-        val subject = "Test Subject"
-        val message = "Test Message"
+        val address = requireActivity().getSharedPreferences("Email", MODE_PRIVATE).getString("email","")
+        val subject = "Daftar Transaksi"
+        val message = "Daftar Transaksi"
 
         val email = Intent(Intent.ACTION_SEND)
         email.type = "application/octet-stream"
