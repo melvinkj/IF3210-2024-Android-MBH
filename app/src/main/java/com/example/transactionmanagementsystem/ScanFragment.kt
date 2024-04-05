@@ -112,7 +112,7 @@ class   ScanFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val captureButton = view.findViewById<FloatingActionButton>(R.id.captureButton)
-        val pickImageButton = view.findViewById<Button>(R.id.pickImageButton)
+        val pickImageButton = view.findViewById<FloatingActionButton>(R.id.pickImageButton)
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         outputDirectory = getOutputDirectory()
