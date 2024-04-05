@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TwibbonFragment">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/viewFinder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" 
+        android:scaleType="fitCenter">
+
+        <!-- Source Credit: pngtree.com -->
+        <ImageView
+            android:id="@+id/twibbonImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" 
+            android:src="@drawable/twibbon_android" />
+    </androidx.camera.view.PreviewView>
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#000000"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:text="Have Fun!"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/capturedImageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="#000000">
+
+        <ImageButton
+            android:id="@+id/retakeButton"
+            android:contentDescription="Retake Photo"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="0.5"
+            android:src="@drawable/baseline_change_circle_24"
+            android:layout_margin="16dp"
+            android:background="@android:color/transparent"
+            android:tint="#FFFFFF"
+            android:scaleType="fitCenter" />
+
+        <ImageButton
+            android:id="@+id/captureButton"
+            android:contentDescription="Capture Photo"
+            android:layout_width="0dp"
+            android:layout_height="96dp"
+            android:layout_weight="1"
+            android:src="@drawable/baseline_circle_24"
+            android:layout_margin="16dp"
+            android:background="@android:color/transparent"
+            android:tint="#FFFFFF"
+            android:scaleType="fitCenter" />
+
+        <ImageButton
+            android:id="@+id/switchCamera"
+            android:contentDescription="Switch Photo"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="0.5"
+            android:src="@drawable/baseline_cameraswitch_24"
+            android:layout_margin="16dp"
+            android:background="@android:color/transparent"
+            android:tint="#FFFFFF"
+            android:scaleType="fitCenter" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
+        <!-- Customize the status bar color to white -->
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item> <!-- This makes the status bar text color black -->
+        <!-- Customize the action bar color to white -->
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowActionBar">true</item>
+        <item name="actionBarStyle">@style/MyActionBar</item> <!-- Update action bar style here -->
+        <!-- Customize the action bar text color to black -->
+        <item name="actionMenuTextColor">@color/black</item>
+    </style>
+
+    <style name="MyActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <!-- Set the background color of the action bar to white -->
+        <item name="background">@color/white</item>
+        <item name="titleTextStyle">@style/ActionBarTitleText</item>
+    </style>
+
+    <style name="ActionBarTitleText" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="ButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:textSize">10sp</item>
+        <item name="android:drawablePadding">30dp</item>
+        <item name="android:background">@drawable/button_template</item>
+    </style>
+
+</resources>
