@@ -1,19 +1,15 @@
 package com.example.transactionmanagementsystem.fragments
 
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.MenuHost
-import androidx.lifecycle.Lifecycle
 import com.example.transactionmanagementsystem.GraphFragment
 import com.example.transactionmanagementsystem.R
 import com.example.transactionmanagementsystem.ScanFragment
 import com.example.transactionmanagementsystem.SettingsFragment
 import com.example.transactionmanagementsystem.TwibbonFragment
-import com.example.transactionmanagementsystem.TransactionFragment
 import com.example.transactionmanagementsystem.databinding.FragmentNavbarBinding
 
 class NavbarFragment : Fragment(R.layout.fragment_navbar) {

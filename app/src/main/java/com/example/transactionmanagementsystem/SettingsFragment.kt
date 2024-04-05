@@ -79,6 +79,7 @@ class SettingsFragment : Fragment() {
         logoutButton.setOnClickListener {
             logout()
         }
+        activity?.title = "Settings"
     }
 
     companion object {
