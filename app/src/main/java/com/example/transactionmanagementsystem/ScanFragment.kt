@@ -143,29 +143,35 @@ class   ScanFragment : Fragment() {
     }
 
     private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-        cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
 
-            viewFinder = requireView().findViewById(R.id.viewFinder)
-            val preview = Preview.Builder()
-                .build()
-                .also {
-                    it.setSurfaceProvider(viewFinder.surfaceProvider)
+        if(checkPermissionsCamera()){
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+            cameraProviderFuture.addListener({
+                val cameraProvider = cameraProviderFuture.get()
+
+                viewFinder = requireView().findViewById(R.id.viewFinder)
+                val preview = Preview.Builder()
+                    .build()
+                    .also {
+                        it.setSurfaceProvider(viewFinder.surfaceProvider)
+                    }
+
+                imageCapture = ImageCapture.Builder()
+                    .build()
+
+                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+                try {
+                    cameraProvider.unbindAll()
+                    cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+                } catch (exc: Exception) {
+                    Log.e(TAG, "Use case binding failed", exc)
                 }
+            }, ContextCompat.getMainExecutor(requireContext()))
+        }else{
+            requestPermissionsCamera()
+        }
 
-            imageCapture = ImageCapture.Builder()
-                .build()
-
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-            try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
-            } catch (exc: Exception) {
-                Log.e(TAG, "Use case binding failed", exc)
-            }
-        }, ContextCompat.getMainExecutor(requireContext()))
     }
 
     private fun getOutputDirectory(): File {
