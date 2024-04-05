@@ -20,9 +20,9 @@ MBH adalah sebuah aplikasi manajemen transaksi yang dapat digunakan pada platfor
 ## Pembagian Tugas
 
 ## Jam Pengerjaan
-Melvin Kent Jonathan    :
-Bill Clinton            :
-Hobert Anthony Jonatan  :
+* Melvin Kent Jonathan    :
+* Bill Clinton            :
+* Hobert Anthony Jonatan  :
 
 ## Credits
 This project is implemented by:
