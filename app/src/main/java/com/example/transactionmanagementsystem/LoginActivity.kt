@@ -48,15 +48,21 @@ class LoginActivity : BaseActivity() {
                     Toast.makeText(this@LoginActivity, "Login success!", Toast.LENGTH_SHORT).show()
                     val responseBody = response.body()?.string()
                     println("Response Body: " + responseBody)
+
+                    // Save email after successful login
+                    val emailPref = getSharedPreferences("Email", MODE_PRIVATE)
+                    val editorEmail = emailPref.edit()
+                    editorEmail.putString("email", email)
+                    editorEmail.apply()
                     
                     // Save token after successful login
                     val jsonObject = JSONObject(responseBody)
                     val tokenString = jsonObject.getString("token")
 
-                    val token = getSharedPreferences("UserToken", MODE_PRIVATE)
-                    val editor = token.edit()
-                    editor.putString("token", tokenString)
-                    editor.apply()
+                    val tokenPref = getSharedPreferences("UserToken", MODE_PRIVATE)
+                    val editorToken = tokenPref.edit()
+                    editorToken.putString("token", tokenString)
+                    editorToken.apply()
 
                     // Start the TokenExpiryService
                     val serviceIntent = Intent(this@LoginActivity, TokenExpiryService::class.java)
